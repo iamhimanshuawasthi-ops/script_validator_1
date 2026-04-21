@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Master CMS — Script Validator Playground</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f4f5f7;
+      margin: 0;
+      color: #111827;
+      line-height: 1.5;
+    }
+    .container { max-width: 980px; margin: 0 auto; padding: 24px 20px 80px; }
+    h1 { font-size: 24px; margin: 0 0 4px; font-weight: 700; }
+    .sub { color: #6b7280; margin: 0 0 24px; font-size: 14px; }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      margin-bottom: 16px;
+    }
+    label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #374151; }
+    label.inline { display: inline-flex; align-items: center; font-weight: normal; margin-bottom: 0; }
+    input, select, textarea {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid #d1d5db;
+      border-radius: 7px;
+      font-size: 14px;
+      font-family: inherit;
+      background: white;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 220px;
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .row { display: grid; gap: 14px; margin-bottom: 14px; }
+    .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .row-2 { grid-template-columns: 1fr 1fr; }
+    button.primary {
+      background: #4f46e5;
+      color: white;
+      border: none;
+      padding: 11px 22px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    button.primary:hover:not(:disabled) { background: #4338ca; }
+    button.primary:disabled { background: #9ca3af; cursor: not-allowed; }
+    button.ghost {
+      background: transparent;
+      color: #4b5563;
+      border: 1px solid #d1d5db;
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    button.ghost:hover { background: #f9fafb; }
+    .verdict-badge {
+      display: inline-block;
+      padding: 5px 13px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .verdict-GO_PUBLISH_READY { background: #d1fae5; color: #065f46; }
+    .verdict-REVISE { background: #fef3c7; color: #92400e; }
+    .verdict-REJECT { background: #fee2e2; color: #991b1b; }
+    .score-big { font-size: 34px; font-weight: 700; margin: 10px 0 2px; line-height: 1; }
+    .score-pct { font-size: 14px; color: #6b7280; }
+    .result-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .meta-right { text-align: right; font-size: 12px; color: #6b7280; line-height: 1.5; }
+    .dim {
+      padding: 14px 0;
+      border-bottom: 1px solid #eef0f3;
+    }
+    .dim:last-of-type { border-bottom: none; }
+    .dim-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .dim-label { font-weight: 600; font-size: 15px; }
+    .dim-score { font-weight: 700; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; color: #111827; }
+    .bar-bg { background: #e5e7eb; border-radius: 4px; height: 6px; overflow: hidden; margin-bottom: 8px; }
+    .bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+    .bar-high { background: #10b981; }
+    .bar-mid { background: #f59e0b; }
+    .bar-low { background: #ef4444; }
+    .dim-reasoning { font-size: 14px; color: #374151; margin-bottom: 6px; }
+    .dim-evidence {
+      border-left: 3px solid #c7d2fe;
+      padding: 2px 0 2px 10px;
+      color: #4b5563;
+      font-size: 13px;
+      font-style: italic;
+    }
+    .dim-suggestions {
+      margin-top: 10px;
+      background: #fff7ed;
+      border-left: 3px solid #fb923c;
+      border-radius: 4px;
+      padding: 10px 12px 10px 14px;
+    }
+    .dim-suggestions-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #9a3412;
+      margin-bottom: 6px;
+    }
+    .dim-suggestions ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .dim-suggestions li {
+      font-size: 13px;
+      color: #3f3f46;
+      line-height: 1.5;
+      margin-bottom: 4px;
+    }
+    .dim-suggestions li:last-child { margin-bottom: 0; }
+    .summary-box {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      padding: 14px 16px;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      color: #0c4a6e;
+    }
+    .warning-box {
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #78350f;
+      margin-bottom: 14px;
+    }
+    details { margin-top: 20px; }
+    summary { cursor: pointer; font-weight: 600; font-size: 13px; color: #4b5563; padding: 6px 0; user-select: none; }
+    summary:hover { color: #111827; }
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 12px;
+      line-height: 1.55;
+      margin: 8px 0 0;
+    }
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid white;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+      vertical-align: -2px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .hidden { display: none; }
+    .err {
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
+      padding: 12px 14px;
+      border-radius: 8px;
+      color: #991b1b;
+      font-size: 13px;
+      white-space: pre-wrap;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      line-height: 1.55;
+    }
+    .hint { font-size: 12px; color: #6b7280; margin-top: 4px; }
+    .divider { height: 1px; background: #e5e7eb; margin: 18px -24px; }
+    .toolbar { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .toolbar-spacer { flex: 1; }
+    .copy-feedback { font-size: 12px; color: #059669; margin-left: 8px; }
+    @media (max-width: 720px) {
+      .row-3, .row-2 { grid-template-columns: 1fr; }
+      .result-head { flex-direction: column; align-items: flex-start; }
+      .meta-right { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Master CMS — Script Validator Playground</h1>
+    <p class="sub">Unified single-call scorer · Gemini 2.5 Flash · 8 dimensions, 140 pts</p>
+
+    <!-- API key -->
+    <div class="card">
+      <label>Gemini API key
+        <input type="password" id="apiKey" placeholder="AIzaSy..." autocomplete="off">
+      </label>
+      <div class="hint">
+        <label class="inline">
+          <input type="checkbox" id="rememberKey" style="width:auto; margin-right:6px;">
+          Remember in this browser (saved to localStorage on this device only)
+        </label>
+      </div>
+    </div>
+
+    <!-- Input form -->
+    <div class="card">
+      <div class="row row-3">
+        <div>
+          <label>Category
+            <select id="category">
+              <option value="New Business Ideas">New Business Ideas</option>
+              <option value="Banking & Finance" selected>Banking & Finance</option>
+              <option value="Secrets of India">Secrets of India</option>
+              <option value="Learn To Earn Online">Learn To Earn Online</option>
+              <option value="AI Se Editing">AI Se Editing</option>
+              <option value="Astrology & Kundli">Astrology & Kundli</option>
+              <option value="Phone & Internet Tips">Phone & Internet Tips</option>
+              <option value="Sarkari Services">Sarkari Services</option>
+              <option value="Trending YouTube/Instagram Growth">Trending YouTube/Instagram Growth</option>
+              <option value="Govt Job and Exams">Govt Job and Exams</option>
+              <option value="Sports">Sports</option>
+              <option value="Spoken English">Spoken English</option>
+              <option value="Devotion & Dharma">Devotion & Dharma</option>
+              <option value="Naukri & Career Guide">Naukri & Career Guide</option>
+              <option value="Law & Civil Rights">Law & Civil Rights</option>
+              <option value="Aadhaar & PAN Updates">Aadhaar & PAN Updates</option>
+              <option value="generic">Generic (uncategorized)</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>Duration (sec)
+            <input type="number" id="duration" value="120" min="30" max="600">
+          </label>
+        </div>
+        <div>
+          <label>Temperature
+            <input type="number" id="temperature" value="0.2" min="0" max="1" step="0.1">
+          </label>
+        </div>
+      </div>
+      <div class="row row-2">
+        <div>
+          <label>Topic (optional)
+            <input type="text" id="topic" placeholder="e.g. Phishing link scams">
+          </label>
+        </div>
+        <div>
+          <label>Series (optional)
+            <input type="text" id="series" placeholder="e.g. Digital Awareness">
+          </label>
+        </div>
+      </div>
+      <label>Script text
+        <textarea id="script" placeholder="Paste your script here..."></textarea>
+      </label>
+      <div class="toolbar">
+        <button class="primary" id="runBtn" onclick="runEval()">Evaluate</button>
+        <button class="ghost" id="clearBtn" onclick="clearAll()">Clear</button>
+        <span id="status" style="color:#6b7280; font-size:13px;"></span>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div id="errorBox" class="card hidden">
+      <div class="err" id="errorText"></div>
+    </div>
+
+    <!-- Results -->
+    <div id="resultCard" class="card hidden">
+      <div class="result-head">
+        <div>
+          <span id="verdictBadge" class="verdict-badge"></span>
+          <div class="score-big" id="scoreBig">—</div>
+          <div class="score-pct" id="scorePct">—</div>
+        </div>
+        <div class="meta-right">
+          <div id="modelInfo">—</div>
+          <div id="timingInfo">—</div>
+          <div style="margin-top:8px;">
+            <button class="ghost" onclick="copyJson()">Copy JSON</button>
+            <span id="copyFeedback" class="copy-feedback"></span>
+          </div>
+        </div>
+      </div>
+      <div class="summary-box" id="summaryBox">
+        <strong>Overall:</strong> <span id="summaryText">—</span>
+      </div>
+      <div id="warningsBox" class="warning-box hidden">
+        <strong>Warnings:</strong> <span id="warningsText"></span>
+      </div>
+      <div id="dimsList"></div>
+      <details>
+        <summary>Raw JSON response</summary>
+        <pre id="rawJson"></pre>
+      </details>
+      <details>
+        <summary>Prompt that was sent</summary>
+        <pre id="rawPrompt"></pre>
+      </details>
+    </div>
+  </div>
+
+  <script>
+  // ============================================================
+  // DIMENSION DEFINITIONS — mirrors dimensionDefinitions.ts
+  // ============================================================
+  const DIMENSIONS = [
+    {
+      key: 'hook', label: 'Hook', maxScore: 20,
+      description: 'First 5-10 seconds — does the script grab a tier 2/3 viewer before they scroll?',
+      rubric: `Scoring bands (max 20):
+  16-20 = concrete pattern break, surprising claim, question, or dramatic story beat in first 5-10s; makes the viewer commit
+  11-15 = recognizable opener but slightly generic; viewer might wait a few more seconds
+   6-10 = slow ramp, warm-up lines before the real content starts
+   0-5  = no hook at all / pure title-card narration / starts with definition
+
+Hyperbole penalty (applies to ALL categories): over-promising phrases like "teen lokon mein alag", "sabse bada rahasya", "aaj tak kisi ne nahi bataya", "shocking sach", "woh kahani jo aapki zindagi badal degi" CAP the hook at 14 regardless of how interesting the underlying question is. A confident, specific pattern-break does not need hype words to land.`,
+      categoryOverrides: {
+        mythology: 'Mythology bonus: a FRESH angle on a known story beat (Hanuman flies to Dronagiri → but why did he pick up the WHOLE mountain?) scores in 16-20. Starting with "Aaj hum baat karenge..." caps at 8.',
+        finance: 'Finance bonus: a specific rupee figure, a scam pattern name (Jamtara, OTP trick), or a counter-intuitive claim in the first 5s scores in 16-20. Generic "paisa bachana zaroori hai" caps at 8. "Kya aap jaante hain..." style questions with a specific figure behind them land in 11-15.',
+        tech_tips: 'Tech-tips bonus: a hook that names a SPECIFIC phone setting / hidden feature / app name in the first 5s ("Aapke WhatsApp mein yeh setting on hai?") scores in 16-20. Generic "digital safety zaroori hai" or "aaj hum sikhenge" caps at 8.',
+        business_ideas: 'Business-ideas bonus: a hook with a specific low-capital figure + named business ("₹5000 mein kirana-adjacent yeh dhanda start karo") scores in 16-20. Generic "apna business kaise shuru karein" or "paise kaise kamayein" caps at 8. Startup-speak hooks ("MVP", "pitch deck") are off-register — cap at 10.',
+        secrets_of_india: 'Secrets-of-India bonus: a hook naming a SPECIFIC place / person / tradition + a surprise angle ("Himachal ka yeh mandir — jahan aaj bhi Pandav aate hain, aisa kaha jaata hai") scores in 16-20. Generic "India great hai" / "aaj hum jaanenge" caps at 8. West-comparison hooks cap at 10.',
+        learn_to_earn: 'Learn-to-earn bonus: a hook naming a SPECIFIC platform + realistic earning figure ("Meesho se ₹500/day, bina investment") scores in 16-20. Generic "ghar baithe paise kamayein" caps at 8. MLM / crypto / dropshipping hype framings cap at 6.',
+        ai_editing: 'AI-editing bonus: a hook naming a SPECIFIC AI tool + specific outcome ("CapCut ke yeh AI feature se 2 min mein reel") scores in 16-20. Generic "AI se content banao" / "AI badal raha hai" caps at 8.',
+        astrology: 'Astrology bonus: a hook tied to a SPECIFIC grah / dasha / rashi + a concrete claim ("Shani ki sade-sati mein yeh 3 galti mat karna") scores in 16-20. Generic "jyotish se jeevan badlega" caps at 8. Skeptical framing ("kya sach mein...") caps at 6.',
+        sarkari_services: 'Sarkari-services bonus: a hook naming a SPECIFIC scheme + benefit amount + deadline ("PM Kisan ke ₹6000, 31 March tak") scores in 16-20. Generic "sarkari yojana ka laabh uthayein" caps at 8. Political framing caps at 6.',
+        creator_growth: 'Creator-growth bonus: a hook naming a SPECIFIC metric / algorithm trick + concrete outcome ("yeh 3 reel setting on karte hi reach 10x") scores in 16-20. Generic "viral kaise ho" / "quality content banao" caps at 8.',
+        govt_jobs: 'Govt-jobs bonus: a hook naming a SPECIFIC exam + vacancy count + deadline ("SSC CGL ki 14000 vacancy, 30 April last date") scores in 16-20. Generic "sarkari naukri ki taiyari" caps at 8. Motivational-guru hooks cap at 10.',
+        sports: 'Sports bonus: a hook tied to a RECENT named match / record / player stat ("Kohli ka yeh 6 — kis gendbaaz ke against pata hai?") scores in 16-20. Generic "cricket fans ke liye" caps at 8. Neutral-sportscaster hooks cap at 10.',
+        spoken_english: 'Spoken-English bonus: a hook showing a SPECIFIC Indian mistake + the correct version ("yeh galat hai: I am having lunch right now — sahi kya hai?") scores in 16-20. Generic "English seekhna easy hai" caps at 8.',
+        career_guide: 'Career-guide bonus: a hook tied to a SPECIFIC role / salary / skill path ("fresher ko ₹25k dene wali yeh 3 jobs") scores in 16-20. Generic "career kaise banaayein" / "passion follow karo" caps at 8.',
+        law_rights: 'Law-rights bonus: a hook framed as a SPECIFIC right + scenario + section ("police ne aapko bina warrant roka — Section 41 ke under aapka yeh haq hai") scores in 16-20. Generic "apne kanooni haq jaaniye" caps at 8. "Consult a lawyer" framed hooks cap at 6.',
+        aadhaar_pan: 'Aadhaar-PAN bonus: a hook naming a SPECIFIC deadline + consequence ("31 March ke baad PAN inactive — yeh kaam aaj karo") scores in 16-20. Generic "PAN-Aadhaar link karein" caps at 8.',
+      },
+    },
+    {
+      key: 'dialogue', label: 'Dialogue', maxScore: 20,
+      description: 'Natural conversational Hinglish — does it sound like a knowledgeable friend speaking, not a textbook being read?',
+      rubric: `Scoring bands (max 20):
+  16-20 = idiomatic Hinglish, natural code-mixing, rhythm feels spoken aloud; lines are memorable
+  11-15 = mostly conversational with 1-2 stiff spots; readable but not quotable
+   6-10 = literal translation feel, awkward English-Hindi joins, or over-formal register
+   0-5  = pure literary Hindi / pure English / news-anchor monotone
+
+Register check (applies to ALL categories — MANDATORY): if the script leans Sanskrit-literary (tatsam) instead of spoken Hinglish, CAP at 12 even if the rhythm is otherwise good. Test with the "chai stall friend" rule — a trusted friend explaining this over tea would NOT say:
+  - "aayushya", "vriddhi", "utpann hua", "nivedita", "avashya", "priyajano", "sparsh kar gaya", "drishti padi", "paot leta hoon", "bhejein"
+They would say:
+  - "aayu / umar", "badh jaati hai", "soch aayi", "samarpit", "zaroor", "apno ko / doston ko", "dil chhoo gaya", "nazar padi", "rang leta hoon", "bhejna".
+One or two classical terms used for flavor are fine (bhakti, darshan, tapasya, sindoor) — those are lived-in words. But a whole script written in tatsam register is pravachan, not storytelling, and caps at 12. If MORE THAN 3 tatsam-only words appear where an everyday Hinglish alternative exists, cap at 10.`,
+      categoryOverrides: {
+        mythology: 'Mythology bonus: classical terms (darshan, bhakti, tapasya) kept IN Hinglish — not removed, not over-translated — score higher. Replacing Sanskrit with English caps at 10. BUT the register check still applies: a script drowning in tatsam vocab (aayushya/vriddhi/nivedita/avashya) is pandit-register, not friend-register, and caps at 12 even for mythology.',
+        finance: 'Finance bonus: Hinglish tech/finance terms (UPI, OTP, CIBIL, SIP, KYC) kept as-is — NOT expanded every time — score higher. Sounds like a trusted friend, not a CA reading a circular. Formal finance-English ("investment vehicles", "portfolio diversification") caps at 10.',
+        tech_tips: 'Tech-tips bonus: tech terms kept in Hinglish (app, settings, notification, phone), explained with a 5-word gloss when needed ("VPN matlab ek secure connection") score higher. Over-technical protocol detail (SSL, TLS, metadata) or translating everything to Hindi caps at 10.',
+        astrology: 'Astrology bonus: Vedic terms (Shani, Rahu, Guru, Shukra, dasha, sade-sati, nakshatra, upaay) kept IN Hinglish — explained with 5-word glosses where needed. Western-zodiac register (Scorpio, Capricorn) caps at 8. Skeptical-secular framing ("kya yeh sach mein kaam karta hai?") caps at 6.',
+        sarkari_services: 'Sarkari-services bonus: scheme / portal / form names kept IN Hinglish as acronyms ("PM Kisan", "UMANG", "CSC") not over-translated. Over-formal sarkari-babu register ("kripya avlokan karein") caps at 8. Spoken, neighbourhood-helper register scores high.',
+        aadhaar_pan: 'Aadhaar-PAN bonus: agency / document acronyms (UIDAI, PAN, KYC, e-KYC, ITR) kept IN Hinglish. Over-formal sarkari-babu register caps at 8. Trusted-neighbour-helping-with-paperwork register scores high.',
+        law_rights: 'Law-rights bonus: section numbers / act names (Section 498A, IPC, RTI, CrPC) kept IN Hinglish — explained with a 5-word gloss. Over-formal legalese ("appellant", "whereof", "notwithstanding") caps at 8. Translating Section numbers into vague Hindi ("kuch kanoon hai") caps at 6.',
+        govt_jobs: 'Govt-jobs bonus: exam / post / agency acronyms (SSC, UPSC, RRB, NEET, CGL, CHSL) kept as-is. Motivational-guru register ("dreams mein yakeen rakho") caps at 8. Over-formal coaching-institute tone caps at 10.',
+        spoken_english: 'Spoken-English bonus: the English MODEL sentences must be GRAMMATICALLY CORRECT — this is teaching content. Even one wrong modelled sentence caps Dialogue at 6, regardless of Hindi rhythm. Hindi explanation around the English must stay conversational Hinglish (trusted teacher), not lecture-hall.',
+      },
+    },
+    {
+      key: 'density', label: 'Density', maxScore: 15,
+      description: 'One-insight discipline. 1-3 min carries ONE takeaway, not three weak ones.',
+      rubric: `Scoring bands (max 15):
+  12-15 = single clear insight, everything else is support; viewer can name the one thing in one breath
+   8-11 = one primary insight with a secondary one hanging on; some rerouting
+   4-7  = two or three competing insights that dilute each other
+   0-3  = information dump with no hierarchy; viewer can't say what it was "about"`,
+    },
+    {
+      key: 'engagement', label: 'Engagement', maxScore: 20,
+      description: 'Middle-act pull-through — does the script keep the viewer watching between the hook and the payoff?',
+      rubric: `Scoring bands (max 20):
+  16-20 = escalating tension/curiosity, 2-3 micro-payoffs in the middle, no dead zones
+  11-15 = steady interest but flat curve — nothing pulls harder as it goes
+   6-10 = a mid-script slump where attention will drop (pure exposition, list of facts)
+   0-5  = monotone body that relies entirely on the hook and ending`,
+    },
+    {
+      key: 'relatability', label: 'Relatability', maxScore: 15,
+      description: 'Tier 2/3 viewer anchor — does the viewer see their own life (kirana, train, family, college) in the script?',
+      rubric: `Scoring bands (max 15):
+  12-15 = at least one concrete Indian-life reference that lands emotionally
+   8-11 = generic examples that COULD be Indian but aren't grounded; metaphors are abstract
+   4-7  = imported examples (Starbucks, NYC, corporate job) with no localization
+   0-3  = script feels written for a different audience entirely`,
+      categoryOverrides: {
+        mythology: 'Mythology bonus: a modern parallel (traffic jam = Lanka siege; WhatsApp group = Sabha) that honors the source scores 12-15.',
+        finance: 'Finance bonus: tier 2/3 grounding — a specific persona (auto-driver, kirana owner, college student with first salary) or a concrete Indian amount (₹200, ₹20,000) scores 12-15. Imported examples (Wall Street, 401k, Starbucks) cap at 4-7.',
+        tech_tips: 'Tech-tips bonus: examples that feel like THE viewer\'s phone — WhatsApp, Paytm, Truecaller, Flipkart, SBI app, JioFi — score 12-15. Abstract references to "social media platforms" or US-only apps (Venmo, Cash App) cap at 4-7.',
+        astrology: 'Astrology bonus: remedies rooted in tier 2/3 household reality (diya, ek phool, ek rupaya daan, jal, roti) score 12-15. Remedies requiring expensive puja samagri, pandit booking, or temple travel cap at 8.',
+        sarkari_services: 'Sarkari-services bonus: the scheme scenarios name real tier 2/3 personas — farmer with Kisan Credit Card, widow applying for pension, student with Scholarship — score 12-15. Urban-IT-worker personas cap at 8.',
+        aadhaar_pan: 'Aadhaar-PAN bonus: scenarios grounded in the local CSC center, bank branch, or mobile portal — what a viewer in Bihar / UP / Rajasthan would actually do — score 12-15. Purely metro / desktop-first scenarios cap at 8.',
+        law_rights: 'Law-rights bonus: scenarios rooted in everyday tier 2/3 reality — kirana dispute, landlord-tenant, police interaction, workplace harassment — score 12-15. Corporate-legal scenarios (M&A, IPO) cap at 4.',
+        govt_jobs: 'Govt-jobs bonus: references to hostel life, coaching cities (Kota, Allahabad, Delhi Mukherjee Nagar), attempt count, reservation category, state-board vs CBSE — score 12-15. Abstract "prepare well" framing with no tier 2/3 marker caps at 8.',
+        spoken_english: 'Spoken-English bonus: daily-life scenarios (office meeting, shopkeeper, travel, college interview, customer service call) score 12-15. Abstract grammar-drill examples with no real-life context cap at 8.',
+      },
+    },
+    {
+      key: 'pacing', label: 'Pacing', maxScore: 15,
+      description: 'Tempo — no dead time in a 90-180s format, but no rushing through the payoff either.',
+      rubric: `Scoring bands (max 15):
+  12-15 = beats land at the right moment; hook→setup→insight→payoff proportions feel earned
+   8-11 = mostly right but one section drags (usually mid-script exposition) OR ending is rushed
+   4-7  = multiple pacing issues — slow start, bloated middle, abrupt end
+   0-3  = no sense of rhythm; reads like a long block of text`,
+    },
+    {
+      key: 'takeaway', label: 'Takeaway Clarity', maxScore: 20,
+      description: 'After watching, can the viewer articulate in one sentence what they learned / felt / will remember?',
+      rubric: `Scoring bands (max 20):
+  16-20 = a single crisp takeaway stated or strongly implied in the final 20% — the viewer could tell a friend in one line AND it directly closes the loop the hook opened (hook asks "kyun?" → takeaway says "isliye X")
+  11-15 = takeaway present but buried or diluted by too many sub-points
+   6-10 = takeaway is implicit, requires the viewer to reconstruct it
+   0-5  = no takeaway / multiple competing takeaways / pure exposition ends
+
+Closed-loop check (applies to ALL categories — MANDATORY): a hook sets up a specific question ("kyun sindoori?", "yeh scam kaise hota hai?", "yeh setting kya karti hai?"). The takeaway MUST answer THAT specific question. If the ending instead pivots to a generic philosophical / life-lesson summary ("sachchi bhakti wahi hoti hai jo...", "zindagi mein imandaari zaroori hai", "technology hamesha badalti rehti hai") INSTEAD of resolving the hook, CAP at 14 even if the line is beautifully written. A well-crafted generic outro is still a failure to deliver on the hook's promise.`,
+    },
+    {
+      key: 'cta', label: 'CTA', maxScore: 15,
+      description: 'Call to action / payoff — does the ending earn a follow / like / save / comment from a viewer who just watched?',
+      rubric: `Scoring bands (max 15):
+  12-15 = a payoff line + a specific ask (agli kahani mein X dekhenge / comment mein batao Y) that flows naturally from the story
+   8-11 = generic CTA ("like and follow") bolted on after the insight lands
+   4-7  = CTA present but at the WRONG moment — interrupts the emotional beat
+   0-3  = no CTA at all / script just stops
+
+Master App CTA anchors (applies to ALL categories — MANDATORY): for a Master App creator series, the CTA must serve the PRODUCT, not just the emotion. Reward CTAs that include:
+  (a) a creator-name slot or sign-off ("mera naam hai <creator>")
+  (b) a Master App mention ("Master app ko apne doston ke sath share kijiye")
+  (c) a next-episode / series teaser ("milte hai Master ke agle episode mein")
+A CTA that has all three lands 12-15. A CTA that has ONE of the three lands 10-12. A CTA that is emotionally warm but has NONE of (a)(b)(c) — e.g. "Jai Bajrangbali! Apne priyajano ko bhejein." — caps at 10 regardless of how moving it is, because it does not pull the viewer into the Master App series loop.`,
+      categoryOverrides: {
+        mythology: 'Mythology bonus: the CTA ties to the NEXT story beat (e.g. "agli baar jab Hanuman Lanka pahunche...") — not a generic like-and-follow.',
+        finance: 'Finance bonus: the CTA gives ONE concrete action ("apne PAN ko aaj hi check kijiye", "OTP kabhi share mat karo — screen shot bhi nahi") tied to the script\'s insight scores 12-15. "Subscribe / like" bolted on caps at 8-11. "Please consult a financial advisor" is a FAILURE — cap at 4.',
+        tech_tips: 'Tech-tips bonus: CTA that asks the viewer to do the trick NOW ("abhi Settings kholo aur yeh option dekho") tied to the specific tip scores 12-15. Generic "subscribe for more tech tips" bolted on caps at 8-11.',
+        business_ideas: 'Business-ideas bonus: a CTA that names a next practical step ("kal hi wholesale market jao aur yeh 2 SKU le aao") scores 12-15. "Start your journey today" motivational fluff caps at 8. Startup-speak ("launch your MVP") caps at 6.',
+        secrets_of_india: 'Secrets-of-India bonus: a CTA that invites the viewer to the NEXT discovery ("agli video mein jaanenge <specific place/person>") scores 12-15. "Subscribe for more India facts" bolted on caps at 8.',
+        learn_to_earn: 'Learn-to-earn bonus: a CTA with ONE concrete first-action ("Meesho app abhi download karo, signup free hai") scores 12-15. "Start earning today" motivational caps at 8. Inflated-promise CTAs ("lakhon kamao") cap at 4.',
+        ai_editing: 'AI-editing bonus: a CTA that asks the viewer to try the specific tool NOW ("abhi CapCut kholo aur yeh AI button dabao") scores 12-15. "Subscribe for more AI tips" caps at 8.',
+        astrology: 'Astrology bonus: a CTA tied to a SPECIFIC, low-cost remedy ("is sabki puja mein yeh 1 phool chadhaana, bus") scores 12-15. "Subscribe for daily rashi updates" bolted on caps at 8. Expensive / complex remedy caps at 6.',
+        sarkari_services: 'Sarkari-services bonus: a CTA with the portal URL + deadline + one clear action ("pmkisan.gov.in pe jaao, 31 March tak form bharna hai") scores 12-15. "Subscribe for more yojana info" bolted on caps at 8. "Please verify with official sources" caps at 6.',
+        creator_growth: 'Creator-growth bonus: a CTA that asks the viewer to APPLY the specific tactic to their next upload ("apne agle reel mein yeh try karo aur comment mein reach batao") scores 12-15. Generic "subscribe for growth tips" caps at 8.',
+        govt_jobs: 'Govt-jobs bonus: a CTA with the exact apply URL + deadline + eligibility note ("ssc.nic.in pe apply karo, last date 30 April, age 18-30") scores 12-15. Motivational "keep grinding" CTAs cap at 8. Coaching-promo CTAs cap at 6.',
+        sports: 'Sports bonus: a CTA that teases the NEXT match / record / analysis + asks a fan opinion ("kal ke match mein <team> jeetegi ya haaregi — comment karo") scores 12-15. Generic "subscribe for cricket updates" caps at 8.',
+        spoken_english: 'Spoken-English bonus: a CTA asking the viewer to USE the specific phrase today ("aaj ek baar yeh sentence use karke comment mein batao") scores 12-15. Generic "English seekhte raho" caps at 8.',
+        career_guide: 'Career-guide bonus: a CTA with ONE concrete next step (course / platform / application / document) ("aaj LinkedIn profile mein yeh 1 change karo") scores 12-15. Motivational "follow your dreams" CTAs cap at 6.',
+        law_rights: 'Law-rights bonus: a CTA with ONE concrete next step — helpline number, RTI template link, legal-aid portal ("112 dial karo / nalsa.gov.in pe free legal aid") scores 12-15. "Consult a lawyer" as the sole CTA is a FAILURE — cap at 4.',
+        aadhaar_pan: 'Aadhaar-PAN bonus: a CTA with the portal URL + deadline + document list ("eportal.incometax.gov.in pe jao, 31 March tak PAN-Aadhaar link karo, ₹1000 fee") scores 12-15. Generic "keep your documents updated" caps at 8.',
+      },
+    },
+  ];
+
+  // ============================================================
+  // PLATFORM LABEL → INTERNAL KEY — mirrors categoryContext.ts
+  // ============================================================
+  const PLATFORM_CATEGORY_LABEL = {
+    'new business ideas': 'business_ideas',
+    'banking & finance': 'finance',
+    'banking and finance': 'finance',
+    'secrets of india': 'secrets_of_india',
+    'learn to earn online': 'learn_to_earn',
+    'ai se editing': 'ai_editing',
+    'astrology & kundli': 'astrology',
+    'astrology and kundli': 'astrology',
+    'phone & internet tips': 'tech_tips',
+    'phone and internet tips': 'tech_tips',
+    'sarkari services': 'sarkari_services',
+    'trending youtube/instagram growth': 'creator_growth',
+    'youtube/instagram growth': 'creator_growth',
+    'govt job and exams': 'govt_jobs',
+    'government job and exams': 'govt_jobs',
+    'sports': 'sports',
+    'spoken english': 'spoken_english',
+    'devotion & dharma': 'mythology',
+    'devotion and dharma': 'mythology',
+    'naukri & career guide': 'career_guide',
+    'naukri and career guide': 'career_guide',
+    'law & civil rights': 'law_rights',
+    'law and civil rights': 'law_rights',
+    'aadhaar & pan updates': 'aadhaar_pan',
+    'aadhaar and pan updates': 'aadhaar_pan',
+  };
+
+  // ============================================================
+  // CATEGORY CONTEXTS — mirrors categoryContext.ts
+  // ============================================================
+  const CATEGORY_CONTEXT = {
+    mythology: {
+      label: 'Hindi Mythology / Devotional short-form (1-3 min)',
+      engagementDrivers: [
+        'A hook in the first 5-10 seconds that taps a known story beat from a fresh angle',
+        'Devotional reverence — sacred figures and texts handled with appropriate respect',
+        'Vivid sensory imagery (visual, sonic, ritual detail) that feels darshanic',
+        'A lesser-known angle on a familiar story',
+        'A modern parallel that lets a tier 2/3 viewer connect ancient context to today',
+        'An emotional anchor — bhakti, awe, gratitude, longing — landed at the climax',
+        'Family-viewing safety — language and visuals appropriate for shared watching',
+        'Conversational Hinglish that sounds like a knowledgeable friend, not a textbook',
+        'One single takeaway the viewer carries away',
+      ],
+      doNotSuggest: [
+        'Adding multiple perspectives or "balanced views" on devotional content — the format requires conviction',
+        'Removing devotional reverence or making sacred figures the butt of jokes',
+        'Replacing emotional/dramatic story beats with neutral explanation',
+        'Adding disclaimers, hedging, or "some scholars believe" softening',
+        'Making the script more "professional" or news-anchor toned — Hinglish warmth IS the format',
+        'Adding more facts or expanding scope — 1-3 min carries ONE insight, not three',
+        'Translating Sanskrit terms by removing them — keep the term and explain it briefly instead',
+        'Replacing storytelling with bullet-point information',
+      ],
+    },
+    finance: {
+      label: 'Hindi Finance / Digital-awareness short-form (1-3 min)',
+      engagementDrivers: [
+        'A hook that names a specific rupee figure, a counter-intuitive claim, or a scam pattern tier 2/3 viewers will recognize',
+        'Concrete Indian examples — UPI, scam calls, SIP, PPF, kirana cash, monthly salary',
+        'One practical takeaway the viewer can act on today',
+        'Conversational Hinglish that sounds like a trusted friend explaining, not a CA reading a circular',
+        'A slight-fear-or-consequence anchor — viewers remember "yeh bhi ho sakta hai" more than "yeh acha hai"',
+        'Specific personas (auto-driver, college student, middle-class family) so the viewer sees themselves',
+        'Family-viewing safety — financially empowering without being alarmist or political',
+      ],
+      doNotSuggest: [
+        'Adding disclaimers like "mutual fund investments are subject to market risks" — SEBI requires them in paid promos, NOT in educational shorts; it kills the hook',
+        'Making the script more "balanced" by adding "on the other hand..." — 1-3 min carries ONE warning, not a pros-cons table',
+        'Replacing concrete rupee figures with vague words like "lots of money" — specificity is what makes finance content trusted',
+        'Over-translating terms (PAN, KYC, UPI, SIP stay IN Hinglish — don\'t expand the acronym every time)',
+        'Adding "please consult a financial advisor" as a CTA — creators LOSE trust when they hedge',
+        'Removing the specific scam / trick / pattern name — these are the memorable anchors',
+        'Making the tone more formal or news-anchor — conversational Hinglish IS the format',
+      ],
+    },
+    tech_tips: {
+      label: 'Hindi Phone / Internet / Tech-Hacks short-form (1-3 min)',
+      engagementDrivers: [
+        'A hook that names a specific phone setting, app, or trick in the first 5-10s',
+        'Concrete screenshots-worthy steps (Settings → Privacy → X) not abstract "use good security practices"',
+        'A "you probably didn\'t know this" insight angle',
+        'One actionable tip per script — not a rapid-fire list of 5 tricks',
+        'Visual-friendly pacing — the viewer will be watching their phone while hearing you',
+        'Plain Hinglish without assuming the viewer knows tech English',
+        'A safety / privacy angle grounded in real Indian concerns (fake app scams, spam calls, data leaks)',
+      ],
+      doNotSuggest: [
+        'Making the script more "technically accurate" by adding protocol details — viewer does not care about HTTPS vs TLS',
+        'Replacing Hinglish tech terms with Hindi translations',
+        'Adding 3-4 more tips to make it "more valuable" — one tip per video is the format discipline',
+        'Making the tone more cautious / adding "results may vary" hedging',
+        'Replacing the specific app or setting name with a generic reference',
+        'Adding a "consult an IT expert" disclaimer',
+        'Expanding scope from phone-tips to broader digital literacy',
+      ],
+    },
+    business_ideas: {
+      label: 'Hindi New Business Ideas short-form (1-3 min) — v1',
+      engagementDrivers: [
+        'A hook with a specific low-capital figure + a specific business idea ("₹5000 mein yeh dhanda start karo")',
+        'Tier 2/3 real-world businesses (kirana, home-based, tiffin, printing, agri, wholesale-to-retail)',
+        'One concrete margin / profit figure rooted in Indian reality',
+        'Trusted-friend tone, someone who has seen this business work locally',
+        'Practical "kaise shuru karein" step (license / supplier / starting capital / where to sell)',
+        'Realistic risk framing',
+      ],
+      doNotSuggest: [
+        'Adding generic "do thorough market research" advice — kills the hook',
+        '"Consult a business advisor" / "results not guaranteed" disclaimers',
+        'Replacing specific rupee figures with vague words',
+        'Reframing into startup/VC language (pitch deck, MVP, angel investor)',
+        'Adding multiple competing business ideas — 1 video = 1 idea',
+        'Making tone MBA-speak / formal',
+      ],
+    },
+    secrets_of_india: {
+      label: 'Hindi Secrets of India short-form (1-3 min) — v1',
+      engagementDrivers: [
+        'A hook revealing a surprising fact about a specific place / person / practice',
+        'Indian-pride anchor — "yeh humari virasat hai"',
+        'One specific named anchor — not generic "India is amazing"',
+        'Vivid sensory detail (visuals, scale, age)',
+        'A modern viewer connection ("aaj bhi yeh parampara chalti hai")',
+        'Conversational Hinglish, curious-friend tone',
+      ],
+      doNotSuggest: [
+        '"Historians debate this" / "some scholars disagree" hedging',
+        'Western comparisons ("like Stonehenge")',
+        'Political or communal framing',
+        'Expanding to multiple secrets — one revelation per video',
+        'Replacing vivid specifics with generic reverence',
+      ],
+    },
+    learn_to_earn: {
+      label: 'Hindi Learn-To-Earn-Online short-form (1-3 min) — v1',
+      engagementDrivers: [
+        'A hook with a specific earning method + realistic daily/monthly figure',
+        'Specific app / platform names (Meesho, Upwork, Fiverr, YouTube, Instagram)',
+        'Tier 2/3 reality — home-based, mobile-only, no capital',
+        'One skill + one platform per video',
+        'Realistic earning range, not inflated screenshots',
+        'Steps to start in the next 24 hours',
+        'Trusted-friend tone, skeptical of scams',
+      ],
+      doNotSuggest: [
+        '"Earnings not guaranteed" SEC-style disclaimers',
+        '"Do not fall for get-rich-quick schemes" moralizing',
+        'Reframing as MLM / crypto / dropshipping hype',
+        'Replacing platform names with generic "freelancing websites"',
+        'Expanding to 5-10 earning ideas — one method per video',
+        'Motivational-guru tone',
+      ],
+    },
+    ai_editing: {
+      label: 'Hindi AI Se Editing short-form (1-3 min) — v1',
+      engagementDrivers: [
+        'A hook naming a specific AI tool + specific outcome',
+        'Tool names kept in English (Canva, CapCut, ChatGPT, Gemini, Pika)',
+        'One tool + one use-case per video',
+        'Screenshot-worthy steps for phone replication',
+        'Indian creator context (Hindi captions, Indian aesthetics)',
+        'Confident delivery — the tool works',
+      ],
+      doNotSuggest: [
+        '"AI may have biases" / "verify AI outputs" disclaimers',
+        'Explaining LLM / diffusion model architecture',
+        'Replacing tool names with generic "AI app"',
+        'Hedging about "tool may update"',
+        'Expanding to 5 tools — one tool per video',
+        'Adding ethical-AI debate framing',
+      ],
+    },
+    astrology: {
+      label: 'Hindi Astrology & Kundli short-form (1-3 min) — v1',
+      engagementDrivers: [
+        'A hook tied to a specific rashi / nakshatra / grah dasha',
+        'Planetary names in Hindi (Shani, Rahu, Guru, Shukra, Budh, Mangal)',
+        'One practical remedy (upaay / daan / mantra) per video',
+        'Timing anchor — "is saptah", "is poornima", "sade-sati"',
+        'Confident, knowledgeable-astrologer tone',
+        'Family-friendly, dharma-positive framing',
+      ],
+      doNotSuggest: [
+        '"Astrology is not scientifically proven" disclaimers — kills the format',
+        '"Consult a qualified astrologer" caveat',
+        'Softening predictions into "may or may not happen"',
+        'Expanding to multiple rashis / multiple remedies per video',
+        'Reframing in Western-zodiac language (Scorpio, Capricorn)',
+        'Therapy-style mental-wellness framing',
+      ],
+    },
+    sarkari_services: {
+      label: 'Hindi Sarkari Services short-form (1-3 min) — v1',
+      engagementDrivers: [
+        'A hook with a specific scheme + benefit amount + deadline',
+        'Exact portal URL / form number / helpline',
+        'Tier 2/3 grounding — eligibility, required documents',
+        'Screenshot-worthy step-by-step portal navigation',
+        'One scheme per video',
+        'Trusted-friend / CSC-operator tone',
+        'Politically neutral',
+      ],
+      doNotSuggest: [
+        '"Please verify with official sources" generic caveat',
+        'Political framing (which party, which minister)',
+        'Softening concrete numbers or deadlines',
+        'Expanding to 5 schemes in one video',
+        'Replacing portal URLs with generic "government website"',
+        'Over-formalising tone — sarkari language is the PROBLEM being solved',
+      ],
+    },
+    creator_growth: {
+      label: 'Hindi YouTube / Instagram Growth short-form (1-3 min) — v1',
+      engagementDrivers: [
+        'A hook with a specific metric / trend / algorithm hack',
+        'Platform jargon in English (reach, retention, hashtags, shorts, reels)',
+        'One concrete tactic per video',
+        'Specific example creator / channel / niche',
+        'Tier 2/3 creator reality (mobile-only, first 1000 subs)',
+        'Data-driven confidence',
+        'Recent-week trend context',
+      ],
+      doNotSuggest: [
+        '"Content quality matters more than hacks" moralizing',
+        '"Results may vary by niche" hedging',
+        'Expanding to 10 growth tips',
+        'Removing specific metric figures',
+        'Vague "be authentic" advice',
+      ],
+    },
+    govt_jobs: {
+      label: 'Hindi Govt Job & Exam short-form (1-3 min) — v1',
+      engagementDrivers: [
+        'A hook with a specific exam / notification / vacancy count + deadline',
+        'Exam names in English (SSC, UPSC, RRB, IBPS, NEET, JEE, CTET)',
+        'Exact syllabus / eligibility / age / qualification anchors',
+        'One exam or one notification per video',
+        'Tier 2/3 aspirant reality (hostels, coaching towns, attempt count)',
+        'Practical next-step (exact apply URL)',
+        'Serious-but-friendly tone, not motivational-guru',
+      ],
+      doNotSuggest: [
+        '"Study hard and believe in yourself" motivational fluff',
+        '"Join our coaching" promotional CTAs',
+        'Expanding to multiple exams',
+        'Softening deadline dates or vacancy figures',
+        'Political framing of reservations / policy',
+        'Replacing exam names with generic "sarkari exam"',
+      ],
+    },
+    sports: {
+      label: 'Hindi Sports short-form (1-3 min) — v1',
+      engagementDrivers: [
+        'A hook tied to a recent named match / moment / record / player stat',
+        'Player / team / tournament names in English',
+        'One moment / record / analysis per video',
+        'Vivid commentary feel — score, over number, opponent context',
+        'Passionate-fan tone',
+        'Tier 2/3 fan reality — cricket-first, domestic leagues',
+        'Recent-context anchor',
+      ],
+      doNotSuggest: [
+        '"Both teams played well" balanced framing',
+        'Reframing emotional moments as neutral analysis',
+        'Expanding to multiple matches / players',
+        'Adding fantasy-league / betting framing',
+        'Stripping specific scores / over numbers',
+      ],
+    },
+    spoken_english: {
+      label: 'Hindi Spoken English short-form (1-3 min) — v1',
+      engagementDrivers: [
+        'A hook showing a common Indian mistake + the correct version',
+        'ONE sentence structure / phrase / grammar rule per video',
+        'Daily-use context (office, college, travel, shopping)',
+        'Model English MUST be CORRECT — accuracy is non-negotiable',
+        'Hindi-first explanation of English',
+        'Practical, memorable replacement',
+        'Encouraging tone',
+      ],
+      doNotSuggest: [
+        '"Multiple ways to say this" hedging — confuses learners',
+        'American-vs-British purism debates',
+        'Expanding to 5-10 phrases per video',
+        'Replacing the specific quoted mistake with generic "many people say it wrong"',
+        'Over-formalising — spoken English, not IELTS',
+        'Adding grammar-rule theory when a memorable example works',
+      ],
+    },
+    career_guide: {
+      label: 'Hindi Naukri & Career-Guide short-form (1-3 min) — v1',
+      engagementDrivers: [
+        'A hook tied to a specific role / salary figure / skill path',
+        'Indian job-market reality (fresher pay, tier 1/2/3 college effect, referrals)',
+        'Specific company / sector / skill names',
+        'One career path / one skill per video',
+        'Realistic salary ranges',
+        'Trusted-senior tone',
+        'Concrete next step',
+      ],
+      doNotSuggest: [
+        '"Follow your passion" vague motivation',
+        '"Results not guaranteed" disclaimers',
+        'US job-market framing (H1B, 401k)',
+        'Expanding to "top 10 careers" listicles',
+        'Inflating salary figures past reality',
+      ],
+    },
+    law_rights: {
+      label: 'Hindi Law & Civil Rights short-form (1-3 min) — v1',
+      engagementDrivers: [
+        'A hook framed as a right the viewer has but may not know',
+        'One specific law / IPC section / act name per video',
+        'Scenario-based framing',
+        'Accurate legal content — high-stakes category',
+        'Tier 2/3 grounded scenarios (local police, kirana, landlord)',
+        'Empowering-not-fearmongering tone',
+        'One concrete next step (file FIR, RTI, helpline)',
+      ],
+      doNotSuggest: [
+        '"Consult a lawyer" as the sole CTA — kills the video',
+        'Expanding to multiple rights / laws',
+        'Political framing of laws',
+        'Softening specific section numbers',
+        '"Laws keep changing" generic hedging',
+        'Over-formal legal-English',
+      ],
+    },
+    aadhaar_pan: {
+      label: 'Hindi Aadhaar & PAN Updates short-form (1-3 min) — v1',
+      engagementDrivers: [
+        'A hook tied to a specific deadline / rule change / consequence',
+        'Official agency names (UIDAI, NSDL, Income Tax Department)',
+        'Exact steps to update / link / correct',
+        'One update or one rule per video',
+        'Tier 2/3 grounded — CSC center, bank branch, mobile-first',
+        'Accurate rules — high-stakes on accuracy',
+        'Trusted-neighbour tone',
+      ],
+      doNotSuggest: [
+        '"Verify with official sources" generic hedge',
+        'Softening the deadline — the deadline IS the hook',
+        'Expanding to unrelated documents (driving license, passport)',
+        'Over-formal sarkari-babu tone',
+        'Removing specific fee / document list',
+        'Political framing of Aadhaar',
+      ],
+    },
+    generic: {
+      label: 'Hindi short-form edutainment (1-3 min)',
+      engagementDrivers: [
+        'A hook in the first 5-10 seconds (question, surprising claim, pattern break)',
+        'Concrete examples grounded in everyday Indian life',
+        'Conversational Hinglish that sounds like a knowledgeable friend, not a textbook',
+        'One concrete takeaway, not three weak ones',
+        'A "you should know this" emotional beat near the end',
+      ],
+      doNotSuggest: [
+        'Making the script more "balanced" or adding multiple perspectives',
+        'Adding disclaimers, hedging, or qualifying language',
+        'Making it more "professional" or news-anchor toned',
+        'Adding more information or expanding scope beyond one insight',
+        'Replacing storytelling with bullet-point exposition',
+      ],
+    },
+  };
+
+  // Resolve either a platform display label ("Banking & Finance") OR an
+  // internal key ("finance") to the canonical internal ContentCategory key.
+  function resolveCategoryKey(catRaw) {
+    if (!catRaw) return 'generic';
+    const lower = String(catRaw).trim().toLowerCase();
+    if (PLATFORM_CATEGORY_LABEL[lower]) return PLATFORM_CATEGORY_LABEL[lower];
+    if (CATEGORY_CONTEXT[lower]) return lower;
+    // Fall back: try the raw input (case-sensitive) in case an internal key
+    // with underscores was passed in.
+    if (CATEGORY_CONTEXT[catRaw]) return catRaw;
+    return 'generic';
+  }
+
+  function getCategoryContext(cat) {
+    const key = resolveCategoryKey(cat);
+    return CATEGORY_CONTEXT[key] || CATEGORY_CONTEXT.generic;
+  }
+
+  function resolveRubric(dim, cat) {
+    if (!cat) return dim.rubric;
+    const key = resolveCategoryKey(cat);
+    const override = dim.categoryOverrides?.[key];
+    if (!override) return dim.rubric;
+    return dim.rubric + '\n' + override;
+  }
+
+  // ============================================================
+  // PROMPT + SCHEMA BUILDERS — mirrors unifiedScoringPrompt.ts
+  // ============================================================
+  function buildPrompt(script, category, topic, series, durationSec, dims) {
+    const ctx = getCategoryContext(category);
+    const totalMax = dims.reduce((s, d) => s + d.maxScore, 0);
+
+    const contextLines = [
+      topic ? `Topic: ${topic}` : null,
+      series ? `Series: ${series}` : null,
+      durationSec ? `Target duration: ${durationSec} seconds` : null,
+      `Category: ${category} (${ctx.label})`,
+    ].filter(Boolean);
+
+    const dimBlocks = dims.map((d, i) => {
+      const rubric = resolveRubric(d, category);
+      return `${i + 1}. ${d.label}  (key: "${d.key}", max: ${d.maxScore})
+   What this measures: ${d.description}
+   ${rubric.replace(/\n/g, '\n   ')}`;
+    }).join('\n\n');
+
+    const dimKeys = dims.map(d => `"${d.key}"`).join(', ');
+
+    return `You are the lead script reviewer for Master App — a Hindi short-form edutainment platform for tier 2/3 India viewers. You are scoring a 1-3 minute script BEFORE it gets produced into a video.
+
+Your job: read the script ONCE, then score ALL ${dims.length} dimensions in a single pass, reasoning across them coherently.
+
+=== WHAT THIS FORMAT REQUIRES ===
+${ctx.engagementDrivers.map(e => '• ' + e).join('\n')}
+
+=== DO NOT SUGGEST (common LLM mistakes for this format) ===
+${ctx.doNotSuggest.map(e => '• ' + e).join('\n')}
+
+=== SCRIPT CONTEXT ===
+${contextLines.join('\n')}
+
+=== SCRIPT TEXT ===
+---BEGIN SCRIPT---
+${script}
+---END SCRIPT---
+
+=== DIMENSIONS TO SCORE ===
+You MUST emit exactly one score entry for each of these ${dims.length} dimensions, keyed by the "key" field shown:
+
+${dimBlocks}
+
+=== SCORING RULES ===
+1. Each score MUST be an INTEGER in [0, maxScore] for that dimension.
+2. Reasoning MUST cite the rubric band you placed the script in (e.g. "lands in 11-15 band because...").
+3. evidence_excerpt MUST be a short quote (≤20 words) from the actual script when possible. Empty string is allowed only if no single line drives the score.
+4. Do NOT inflate scores to be encouraging. A truly average script on a dimension is in the MIDDLE band, not the upper one.
+5. Scores across dimensions should be INTERNALLY CONSISTENT.
+6. The "summary" field is a 2-3 sentence overall read of the script — what it is, what works, what the biggest risk is.
+
+=== SUGGESTIONS — WHEN AND HOW ===
+For EACH dimension, the "suggestions" field is a list of 2-3 concrete fix-it actions an editor can apply.
+
+WHEN to populate suggestions:
+  - If score < 0.75 × maxScore for this dimension → YOU MUST produce 2-3 suggestions.
+  - If score ≥ 0.75 × maxScore → return an empty array []. Do not suggest tweaks to already-strong sections.
+
+HOW each suggestion must read:
+  - Quote the exact line / phrase from the script you want changed.
+  - Show the REPLACEMENT — a rewritten line in the same voice, not a generic note.
+  - Keep it to 1-2 sentences, editor-ready. No meta-advice ("make the hook stronger"), no reading-room philosophy.
+  - Stay in the category's voice (mythology = devotional tone preserved; finance = trusted-friend; tech_tips = specific setting/app).
+
+GOOD suggestion examples:
+  • (Dialogue 11/20, tatsam register) — "Replace 'unke mann mein ek vichar utpann hua' → 'unke mann mein ek soch aayi'. Also swap 'avashya bhejein' → 'zaroor bhejna' and 'priyajano ko' → 'apno ko / doston ko' so the line sounds like a chai-stall friend, not a pandit."
+  • (Hook 13/20, hyperbole) — "Drop 'teen lokon mein alag' — sounds like clickbait. Replace the opening line with: 'Kabhi socha hai Hanuman ji ka rang sindoori kyun hai — jab janm ke waqt toh woh normal hi the?' Keeps the specific question, loses the hype."
+  • (Takeaway 13/20, generic pivot) — "Your current ending 'sachchi bhakti wahi hoti hai jo bina phal ki kaamna ke ho' is a generic moral. Replace with: 'Isliye Hanuman ji ka rang sindoori hai — Ram ke prem ka rang.' This directly answers the hook's question."
+  • (CTA 9/15, no Master App anchors) — "Your current 'Jai Bajrangbali! Priyajano ko bhejein' is warm but doesn't serve Master App. Replace with: 'Mera naam hai <creator>. Master app ke agle episode mein Hanuman ji ki ek aur chupi kahani — tab tak Jai Bajrangbali!' Adds the creator slot + app mention + next-episode teaser."
+  • (Relatability 8/15, no modern anchor) — "Add one modern parallel after the Sita-Hanuman exchange. Example line: 'Jaise aaj bhi ghar mein chhoti behen apni bhaiya ke liye paani ke paas ek diya jalaati hai — har chhoti chiz mein prem.' Grounds the ancient beat in a tier-2/3 household visual."
+
+BAD suggestions to AVOID (do not produce these):
+  ✗ "Improve the hook to be more engaging." (vague, not actionable)
+  ✗ "Use more conversational Hinglish." (abstract)
+  ✗ "Add a stronger takeaway." (no rewrite shown)
+  ✗ "Consider adding a modern reference." (no specific example)
+
+=== OUTPUT FORMAT ===
+Return a JSON object matching the response schema exactly. The "dimensions" array MUST contain exactly ${dims.length} entries, one for each key: [${dimKeys}]. Every entry must include a "suggestions" array (empty when score ≥ 0.75 × maxScore, otherwise 2-3 concrete rewrites). Scoring max is ${totalMax} points total.`;
+  }
+
+  function buildSchema(dims) {
+    return {
+      type: 'object',
+      properties: {
+        summary: { type: 'string', description: 'A 2-3 sentence overall read of the script.' },
+        dimensions: {
+          type: 'array',
+          minItems: dims.length,
+          maxItems: dims.length,
+          items: {
+            type: 'object',
+            properties: {
+              key: { type: 'string', enum: dims.map(d => d.key) },
+              score: { type: 'integer' },
+              reasoning: { type: 'string' },
+              evidence_excerpt: { type: 'string' },
+              suggestions: {
+                type: 'array',
+                minItems: 0,
+                maxItems: 3,
+                items: { type: 'string' },
+                description: '2-3 concrete rewrites when score < 0.75 * maxScore. Empty array otherwise.',
+              },
+            },
+            required: ['key', 'score', 'reasoning', 'evidence_excerpt', 'suggestions'],
+          },
+        },
+      },
+      required: ['summary', 'dimensions'],
+    };
+  }
+
+  // ============================================================
+  // GEMINI FETCH
+  // ============================================================
+  async function callGemini(apiKey, prompt, schema, temperature) {
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(apiKey);
+    const body = {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature,
+        maxOutputTokens: 8192,
+        responseMimeType: 'application/json',
+        responseSchema: schema,
+        thinkingConfig: { thinkingBudget: 0 },
+      },
+    };
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) {
+      const errText = await r.text();
+      throw new Error(`Gemini API ${r.status}: ${errText}`);
+    }
+    const data = await r.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      throw new Error('Failed to parse Gemini response as JSON. First 500 chars: ' + text.slice(0, 500));
+    }
+  }
+
+  // ============================================================
+  // NORMALIZATION + VERDICT — mirrors scriptValidatorV1Unified.service.ts
+  // ============================================================
+  function normalizeDim(raw, def, warnings) {
+    let score = 0;
+    if (typeof raw.score === 'number' && Number.isFinite(raw.score)) {
+      score = Math.round(raw.score);
+    } else if (typeof raw.score === 'string') {
+      const n = Number(raw.score);
+      if (Number.isFinite(n)) score = Math.round(n);
+      else warnings.push('score_not_number:' + def.key + ':' + raw.score);
+    } else {
+      warnings.push('score_missing:' + def.key);
+    }
+    if (score < 0) { warnings.push('score_below_zero_clamped:' + def.key + ':' + score); score = 0; }
+    if (score > def.maxScore) { warnings.push('score_above_max_clamped:' + def.key + ':' + score + '>' + def.maxScore); score = def.maxScore; }
+
+    let suggestions = [];
+    if (Array.isArray(raw.suggestions)) {
+      suggestions = raw.suggestions
+        .filter(s => typeof s === 'string')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      if (suggestions.length > 3) {
+        warnings.push('suggestions_over_cap:' + def.key + ':' + suggestions.length + '>3');
+        suggestions = suggestions.slice(0, 3);
+      }
+    } else if (raw.suggestions != null) {
+      warnings.push('suggestions_not_array:' + def.key);
+    }
+
+    const frac = def.maxScore > 0 ? score / def.maxScore : 0;
+    const isLow = frac < 0.75;
+    if (isLow && suggestions.length === 0) {
+      warnings.push('suggestions_missing_for_low_score:' + def.key + ':' + score + '/' + def.maxScore);
+    }
+    if (!isLow && suggestions.length > 0) {
+      warnings.push('suggestions_present_for_high_score:' + def.key + ':' + score + '/' + def.maxScore);
+    }
+
+    return {
+      key: def.key,
+      score,
+      reasoning: typeof raw.reasoning === 'string' ? raw.reasoning.trim() : '',
+      evidence_excerpt: typeof raw.evidence_excerpt === 'string' ? raw.evidence_excerpt.trim() : '',
+      suggestions,
+    };
+  }
+
+  function deriveVerdict(total, max) {
+    if (max <= 0) return 'REJECT';
+    const frac = total / max;
+    if (frac >= 0.8) return 'GO_PUBLISH_READY';
+    if (frac >= 0.5) return 'REVISE';
+    return 'REJECT';
+  }
+
+  // ============================================================
+  // UI GLUE
+  // ============================================================
+  let lastResult = null;
+  let lastPrompt = '';
+
+  async function runEval() {
+    const apiKey = document.getElementById('apiKey').value.trim();
+    const script = document.getElementById('script').value.trim();
+    const category = document.getElementById('category').value;
+    const duration = parseInt(document.getElementById('duration').value, 10) || 120;
+    const temperature = parseFloat(document.getElementById('temperature').value);
+    const topic = document.getElementById('topic').value.trim();
+    const series = document.getElementById('series').value.trim();
+
+    if (!apiKey) { showError('Please enter your Gemini API key.'); return; }
+    if (!script) { showError('Please paste a script to evaluate.'); return; }
+
+    const remember = document.getElementById('rememberKey').checked;
+    try {
+      if (remember) localStorage.setItem('geminiApiKey', apiKey);
+      else localStorage.removeItem('geminiApiKey');
+      localStorage.setItem('rememberKey', String(remember));
+    } catch (e) { /* localStorage may not be available under file:// in some browsers */ }
+
+    const btn = document.getElementById('runBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Evaluating...';
+    document.getElementById('errorBox').classList.add('hidden');
+    document.getElementById('resultCard').classList.add('hidden');
+    document.getElementById('status').textContent = 'Sending to Gemini 2.5 Flash...';
+    const start = Date.now();
+
+    try {
+      const prompt = buildPrompt(script, category, topic, series, duration, DIMENSIONS);
+      lastPrompt = prompt;
+      const schema = buildSchema(DIMENSIONS);
+      const raw = await callGemini(apiKey, prompt, schema, isNaN(temperature) ? 0.2 : temperature);
+
+      const warnings = [];
+      const summary = typeof raw.summary === 'string' ? raw.summary.trim() : '';
+      if (!summary) warnings.push('summary_missing_or_empty');
+
+      const rawEntries = Array.isArray(raw.dimensions) ? raw.dimensions : [];
+      if (!rawEntries.length) warnings.push('dimensions_array_missing_or_empty');
+
+      const byKey = new Map();
+      for (const e of rawEntries) {
+        const k = typeof e.key === 'string' ? e.key.trim() : '';
+        if (!k) { warnings.push('dimension_entry_missing_key'); continue; }
+        if (byKey.has(k)) { warnings.push('duplicate_dimension_key_in_response:' + k); continue; }
+        byKey.set(k, e);
+      }
+      const declared = new Set(DIMENSIONS.map(d => d.key));
+      for (const k of byKey.keys()) {
+        if (!declared.has(k)) warnings.push('unknown_dimension_key_in_response:' + k);
+      }
+
+      const dims = DIMENSIONS.map(d => {
+        const e = byKey.get(d.key);
+        if (!e) { warnings.push('missing_dimension_in_response:' + d.key); return { key: d.key, score: 0, reasoning: '', evidence_excerpt: '', suggestions: [] }; }
+        return normalizeDim(e, d, warnings);
+      });
+
+      const totalScore = dims.reduce((s, d) => s + d.score, 0);
+      const maxScore = DIMENSIONS.reduce((s, d) => s + d.maxScore, 0);
+      const verdict = deriveVerdict(totalScore, maxScore);
+
+      const result = {
+        dimensions: dims,
+        totalScore,
+        maxScore,
+        verdict,
+        summary,
+        category,
+        model: 'gemini-2.5-flash',
+        duration_ms: Date.now() - start,
+        generated_at: new Date().toISOString(),
+        warnings,
+      };
+      lastResult = result;
+
+      renderResult(result);
+      document.getElementById('status').textContent = 'Done in ' + result.duration_ms + 'ms';
+    } catch (err) {
+      showError(err.message || String(err));
+      document.getElementById('status').textContent = '';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Evaluate';
+    }
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.classList.remove('hidden');
+    document.getElementById('errorText').textContent = msg;
+  }
+
+  function renderResult(r) {
+    const card = document.getElementById('resultCard');
+    card.classList.remove('hidden');
+    const vb = document.getElementById('verdictBadge');
+    vb.textContent = r.verdict.replace(/_/g, ' ');
+    vb.className = 'verdict-badge verdict-' + r.verdict;
+    document.getElementById('scoreBig').textContent = r.totalScore + ' / ' + r.maxScore;
+    document.getElementById('scorePct').textContent = ((r.totalScore / r.maxScore) * 100).toFixed(1) + '%';
+    document.getElementById('modelInfo').textContent = r.model;
+    document.getElementById('timingInfo').textContent = r.duration_ms + 'ms · ' + r.category;
+    document.getElementById('summaryText').textContent = r.summary || '(no summary returned)';
+
+    if (r.warnings && r.warnings.length) {
+      document.getElementById('warningsBox').classList.remove('hidden');
+      document.getElementById('warningsText').textContent = r.warnings.join('; ');
+    } else {
+      document.getElementById('warningsBox').classList.add('hidden');
+    }
+
+    const dimsList = document.getElementById('dimsList');
+    dimsList.innerHTML = '';
+    for (const d of r.dimensions) {
+      const def = DIMENSIONS.find(x => x.key === d.key);
+      const max = def ? def.maxScore : d.score;
+      const label = def ? def.label : d.key;
+      const frac = def ? d.score / def.maxScore : 0;
+      const barClass = frac >= 0.75 ? 'bar-high' : frac >= 0.5 ? 'bar-mid' : 'bar-low';
+      const el = document.createElement('div');
+      el.className = 'dim';
+      const suggestionsHtml = (Array.isArray(d.suggestions) && d.suggestions.length > 0)
+        ? '<div class="dim-suggestions">' +
+            '<div class="dim-suggestions-title">How to fix this</div>' +
+            '<ul>' + d.suggestions.map(s => '<li>' + escapeHtml(s) + '</li>').join('') + '</ul>' +
+          '</div>'
+        : '';
+
+      el.innerHTML =
+        '<div class="dim-head">' +
+          '<div class="dim-label">' + escapeHtml(label) + '</div>' +
+          '<div class="dim-score">' + d.score + ' / ' + max + '</div>' +
+        '</div>' +
+        '<div class="bar-bg"><div class="bar-fill ' + barClass + '" style="width:' + (frac * 100).toFixed(0) + '%"></div></div>' +
+        '<div class="dim-reasoning">' + escapeHtml(d.reasoning) + '</div>' +
+        (d.evidence_excerpt ? '<div class="dim-evidence">"' + escapeHtml(d.evidence_excerpt) + '"</div>' : '') +
+        suggestionsHtml;
+      dimsList.appendChild(el);
+    }
+
+    document.getElementById('rawJson').textContent = JSON.stringify(r, null, 2);
+    document.getElementById('rawPrompt').textContent = lastPrompt;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function clearAll() {
+    document.getElementById('script').value = '';
+    document.getElementById('topic').value = '';
+    document.getElementById('series').value = '';
+    document.getElementById('errorBox').classList.add('hidden');
+    document.getElementById('resultCard').classList.add('hidden');
+    document.getElementById('status').textContent = '';
+    lastResult = null;
+    lastPrompt = '';
+  }
+
+  async function copyJson() {
+    if (!lastResult) return;
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(lastResult, null, 2));
+      const f = document.getElementById('copyFeedback');
+      f.textContent = 'Copied!';
+      setTimeout(() => { f.textContent = ''; }, 2000);
+    } catch (e) {
+      showError('Could not copy: ' + (e.message || e));
+    }
+  }
+
+  // Restore saved API key preference on load
+  (function init() {
+    try {
+      const remember = localStorage.getItem('rememberKey') === 'true';
+      const saved = localStorage.getItem('geminiApiKey');
+      document.getElementById('rememberKey').checked = remember;
+      if (remember && saved) document.getElementById('apiKey').value = saved;
+    } catch (e) { /* ignore */ }
+  })();
+
+  // Allow Ctrl/Cmd+Enter to trigger evaluation
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      runEval();
+    }
+  });
+  </script>
+</body>
+</html>
