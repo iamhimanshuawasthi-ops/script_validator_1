@@ -206,10 +206,78 @@
     .toolbar { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
     .toolbar-spacer { flex: 1; }
     .copy-feedback { font-size: 12px; color: #059669; margin-left: 8px; }
+    /* History panel */
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .history-header h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .history-actions { display: flex; gap: 6px; }
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .history-table th {
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      border-bottom: 2px solid #e5e7eb;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .history-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid #f3f4f6;
+      vertical-align: middle;
+    }
+    .history-row { cursor: pointer; transition: background 0.1s; }
+    .history-row:hover { background: #f9fafb; }
+    .history-row.active { background: #eef2ff; }
+    .history-snippet {
+      max-width: 260px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #374151;
+    }
+    .history-score { font-weight: 700; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+    .history-verdict {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .history-time { color: #9ca3af; font-size: 12px; white-space: nowrap; }
+    .history-empty {
+      text-align: center;
+      color: #9ca3af;
+      padding: 24px 12px;
+      font-size: 13px;
+    }
+    .history-count {
+      font-size: 12px;
+      color: #9ca3af;
+      font-weight: 400;
+      margin-left: 6px;
+    }
+
     @media (max-width: 720px) {
       .row-3, .row-2 { grid-template-columns: 1fr; }
       .result-head { flex-direction: column; align-items: flex-start; }
       .meta-right { text-align: left; }
+      .history-snippet { max-width: 140px; }
     }
   </style>
 </head>
@@ -327,6 +395,31 @@
         <summary>Prompt that was sent</summary>
         <pre id="rawPrompt"></pre>
       </details>
+    </div>
+
+    <!-- History -->
+    <div id="historyCard" class="card hidden">
+      <div class="history-header">
+        <h3>History <span id="historyCount" class="history-count"></span></h3>
+        <div class="history-actions">
+          <button class="ghost" onclick="exportHistoryCsv()">Export CSV</button>
+          <button class="ghost" onclick="clearHistory()" style="color:#dc2626;">Clear all</button>
+        </div>
+      </div>
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Script</th>
+            <th>Category</th>
+            <th>Score</th>
+            <th>Verdict</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+      <div id="historyEmpty" class="history-empty">No scripts validated yet. Results will appear here.</div>
     </div>
   </div>
 
@@ -1170,6 +1263,7 @@ Return a JSON object matching the response schema exactly. The "dimensions" arra
       lastResult = result;
 
       renderResult(result);
+      addToHistory(result, script);
       document.getElementById('status').textContent = 'Done in ' + result.duration_ms + 'ms';
     } catch (err) {
       showError(err.message || String(err));
@@ -1263,6 +1357,126 @@ Return a JSON object matching the response schema exactly. The "dimensions" arra
     } catch (e) {
       showError('Could not copy: ' + (e.message || e));
     }
+  }
+
+  // ============================================================
+  // HISTORY — in-memory log of all validated scripts
+  // ============================================================
+  const validationHistory = [];
+
+  function addToHistory(result, scriptText) {
+    const entry = {
+      id: validationHistory.length + 1,
+      snippet: scriptText.substring(0, 120).replace(/\n/g, ' '),
+      fullScript: scriptText,
+      category: result.category,
+      totalScore: result.totalScore,
+      maxScore: result.maxScore,
+      verdict: result.verdict,
+      summary: result.summary,
+      timestamp: result.generated_at,
+      result: result,
+    };
+    validationHistory.push(entry);
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const card = document.getElementById('historyCard');
+    const body = document.getElementById('historyBody');
+    const empty = document.getElementById('historyEmpty');
+    const count = document.getElementById('historyCount');
+
+    if (validationHistory.length === 0) {
+      card.classList.add('hidden');
+      return;
+    }
+
+    card.classList.remove('hidden');
+    empty.style.display = 'none';
+    count.textContent = '(' + validationHistory.length + ')';
+
+    body.innerHTML = '';
+    // Show newest first
+    for (let i = validationHistory.length - 1; i >= 0; i--) {
+      const h = validationHistory[i];
+      const tr = document.createElement('tr');
+      tr.className = 'history-row';
+      tr.dataset.idx = i;
+      tr.onclick = function () { viewHistoryEntry(i); };
+
+      const pct = ((h.totalScore / h.maxScore) * 100).toFixed(0);
+      const ts = new Date(h.timestamp);
+      const timeStr = ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      tr.innerHTML =
+        '<td>' + h.id + '</td>' +
+        '<td><div class="history-snippet" title="' + escapeHtml(h.snippet) + '">' + escapeHtml(h.snippet) + '</div></td>' +
+        '<td>' + escapeHtml(h.category) + '</td>' +
+        '<td class="history-score">' + h.totalScore + '/' + h.maxScore + ' <span style="font-weight:400;color:#9ca3af;">(' + pct + '%)</span></td>' +
+        '<td><span class="history-verdict verdict-' + h.verdict + '">' + h.verdict.replace(/_/g, ' ') + '</span></td>' +
+        '<td class="history-time">' + timeStr + '</td>';
+      body.appendChild(tr);
+    }
+  }
+
+  function viewHistoryEntry(idx) {
+    const entry = validationHistory[idx];
+    if (!entry) return;
+
+    // Highlight active row
+    document.querySelectorAll('.history-row').forEach(r => r.classList.remove('active'));
+    document.querySelectorAll('.history-row[data-idx="' + idx + '"]').forEach(r => r.classList.add('active'));
+
+    // Load result into the results panel
+    lastResult = entry.result;
+    lastPrompt = '(loaded from history — original prompt not stored)';
+    renderResult(entry.result);
+
+    // Scroll to result
+    document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function clearHistory() {
+    if (!validationHistory.length) return;
+    if (!confirm('Clear all ' + validationHistory.length + ' history entries?')) return;
+    validationHistory.length = 0;
+    document.getElementById('historyCard').classList.add('hidden');
+  }
+
+  function exportHistoryCsv() {
+    if (!validationHistory.length) return;
+    const headers = ['#', 'Script Snippet', 'Category', 'Score', 'Max', 'Percentage', 'Verdict', 'Summary', 'Timestamp'];
+    const dimKeys = DIMENSIONS.map(d => d.key);
+    const allHeaders = headers.concat(dimKeys.map(k => 'dim_' + k));
+
+    const rows = validationHistory.map(h => {
+      const base = [
+        h.id,
+        '"' + h.snippet.replace(/"/g, '""') + '"',
+        '"' + h.category.replace(/"/g, '""') + '"',
+        h.totalScore,
+        h.maxScore,
+        ((h.totalScore / h.maxScore) * 100).toFixed(1) + '%',
+        h.verdict,
+        '"' + (h.summary || '').replace(/"/g, '""') + '"',
+        h.timestamp,
+      ];
+      const dimScores = dimKeys.map(k => {
+        const dim = h.result.dimensions.find(d => d.key === k);
+        return dim ? dim.score : '';
+      });
+      return base.concat(dimScores).join(',');
+    });
+
+    const csv = allHeaders.join(',') + '\n' + rows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'validation-history-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   // Restore saved API key preference on load
