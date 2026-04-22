@@ -1175,8 +1175,8 @@ Return a JSON object matching the response schema exactly. The "dimensions" arra
   function deriveVerdict(total, max) {
     if (max <= 0) return 'REJECT';
     const frac = total / max;
-    if (frac >= 0.8) return 'GO_PUBLISH_READY';
-    if (frac >= 0.5) return 'REVISE';
+    if (frac >= 0.85) return 'GO_PUBLISH_READY';
+    if (frac >= 0.65) return 'REVISE';
     return 'REJECT';
   }
 
