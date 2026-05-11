@@ -340,6 +340,7 @@ Ep 8 — Conclusion: Deliver the final takeaway. Close all loops. Strong CTA for
       <div class="history-header">
         <h3>Generated Scripts <span id="historyCount" class="history-count"></span></h3>
         <div style="display:flex;gap:6px;">
+          <button class="ghost" onclick="downloadCSV()" style="color:#059669;">Download CSV</button>
           <button class="ghost" onclick="clearHistory()" style="color:#dc2626;">Clear all</button>
         </div>
       </div>
@@ -347,6 +348,8 @@ Ep 8 — Conclusion: Deliver the final takeaway. Close all loops. Strong CTA for
         <thead>
           <tr>
             <th>#</th>
+            <th>Series</th>
+            <th>Ep</th>
             <th>Topic</th>
             <th>Category</th>
             <th>Time</th>
@@ -1096,7 +1099,7 @@ Do NOT add any meta-commentary before or after the script.`;
       document.getElementById('status').textContent = 'Done in ' + elapsed + 'ms';
 
       // History
-      addToHistory(topic || episode, category, scriptText);
+      addToHistory(topic || episode, category, scriptText, series, currentEpisode, totalEpisodes);
 
     } catch (err) {
       showError(err.message || String(err));
@@ -1145,11 +1148,14 @@ Do NOT add any meta-commentary before or after the script.`;
   // ============================================================
   // HISTORY
   // ============================================================
-  function addToHistory(topic, category, scriptText) {
+  function addToHistory(topic, category, scriptText, seriesName, episodeNum, totalEps) {
     generationHistory.push({
       id: generationHistory.length + 1,
       topic,
       category,
+      series: seriesName || '',
+      episodeNum: episodeNum || '',
+      totalEpisodes: totalEps || '',
       script: scriptText,
       timestamp: new Date().toISOString(),
     });
@@ -1176,6 +1182,8 @@ Do NOT add any meta-commentary before or after the script.`;
       const timeStr = ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       tr.innerHTML =
         '<td>' + h.id + '</td>' +
+        '<td><div class="history-snippet">' + escapeHtml(h.series || '—') + '</div></td>' +
+        '<td>' + (h.episodeNum || '—') + '</td>' +
         '<td><div class="history-snippet">' + escapeHtml(h.topic) + '</div></td>' +
         '<td>' + escapeHtml(h.category) + '</td>' +
         '<td class="history-time">' + timeStr + '</td>';
@@ -1199,6 +1207,48 @@ Do NOT add any meta-commentary before or after the script.`;
     if (!confirm('Clear all ' + generationHistory.length + ' history entries?')) return;
     generationHistory.length = 0;
     document.getElementById('historyCard').classList.add('hidden');
+  }
+
+  function downloadCSV() {
+    if (!generationHistory.length) { alert('No scripts to download.'); return; }
+
+    // CSV escape helper — wraps in quotes and escapes internal quotes
+    function csvEscape(val) {
+      const str = String(val || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return '"' + str.replace(/"/g, '""') + '"';
+      }
+      return str;
+    }
+
+    const headers = ['#', 'Series Name', 'Episode Number', 'Total Episodes', 'Category', 'Topic / Episode Title', 'Script', 'Generated At'];
+    const rows = [headers.map(csvEscape).join(',')];
+
+    for (const h of generationHistory) {
+      rows.push([
+        h.id,
+        csvEscape(h.series),
+        h.episodeNum,
+        h.totalEpisodes,
+        csvEscape(h.category),
+        csvEscape(h.topic),
+        csvEscape(h.script),
+        h.timestamp,
+      ].join(','));
+    }
+
+    const csvContent = '﻿' + rows.join('\n'); // BOM for Excel Hindi support
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const seriesName = generationHistory[0].series || 'scripts';
+    const dateStr = new Date().toISOString().slice(0, 10);
+    a.download = seriesName.replace(/[^a-zA-Z0-9\-_ ]/g, '').replace(/\s+/g, '_') + '_' + dateStr + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   function escapeHtml(s) {
