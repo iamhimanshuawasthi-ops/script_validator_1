@@ -186,12 +186,13 @@
     .ep-script-preview { font-size: 13px; color: #6b7280; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
     /* Option cards */
-    .opt-group { margin: 12px 0; }
+    .opt-group { margin: 12px 0; overflow: hidden; }
     .opt-group label.opt-label { font-weight: 700; font-size: 13px; margin-bottom: 8px; color: #374151; }
-    .opt-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; font-size: 13px; line-height: 1.55; }
+    .opt-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; font-size: 13px; line-height: 1.55; overflow: hidden; width: 100%; box-sizing: border-box; }
     .opt-item:hover { border-color: #6366f1; background: #f5f3ff; }
     .opt-item.selected { border-color: #6366f1; background: #eef2ff; }
     .opt-item input[type="radio"] { margin-top: 3px; flex-shrink: 0; }
+    .opt-item span { flex: 1; min-width: 0; word-wrap: break-word; overflow-wrap: break-word; }
 
     /* Topic chips */
     .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
@@ -262,7 +263,8 @@
               <option value="Astrology & Kundli">Astrology & Kundli</option>
               <option value="Phone & Internet Tips">Phone & Internet Tips</option>
               <option value="Sarkari Services">Sarkari Services</option>
-              <option value="Trending YouTube/Instagram Growth">Trending YouTube/Instagram Growth</option>
+              <option value="Trending (Current Affairs)">Trending (Current Affairs)</option>
+              <option value="YouTube/Instagram Growth">YouTube/Instagram Growth</option>
               <option value="Govt Job and Exams">Govt Job and Exams</option>
               <option value="Sports">Sports</option>
               <option value="Spoken English">Spoken English</option>
@@ -381,7 +383,9 @@
     'phone & internet tips': 'tech_tips',
     'phone and internet tips': 'tech_tips',
     'sarkari services': 'sarkari_services',
-    'trending youtube/instagram growth': 'creator_growth',
+    'trending (current affairs)': 'trending_current_affairs',
+    'trending': 'trending_current_affairs',
+    'current affairs': 'trending_current_affairs',
     'youtube/instagram growth': 'creator_growth',
     'govt job and exams': 'govt_jobs',
     'government job and exams': 'govt_jobs',
@@ -554,19 +558,40 @@
         'Over-formalising tone — sarkari language is the problem being solved',
       ],
     },
+    trending_current_affairs: {
+      label: 'Hindi Trending / Current Affairs short-form (1-3 min)',
+      engagementDrivers: [
+        'A hook that names the specific event, person, or breaking development — "Kal raat jo hua..."',
+        'Timeliness — the viewer must feel they are getting this BEFORE others',
+        'One clear stance or angle — not neutral news-reading, but an opinion-led take that tier 2/3 viewers relate to',
+        'Concrete details — names, dates, numbers, locations — that make the viewer feel informed',
+        'Emotional connection — why this trending topic matters to THEIR life (job, money, safety, pride)',
+        'Conversational Hinglish that sounds like a friend breaking news over chai, not a news anchor',
+        'A CTA that creates discussion — "comment mein batao kya lagta hai"',
+      ],
+      doNotDo: [
+        'Being vague or generic — "kuch bada hua" without naming what happened',
+        'Adding "both sides" neutrality that kills the hook — pick an angle',
+        'Making it sound like a newspaper article — this is spoken, fast, opinionated',
+        'Covering 5 topics in one video — ONE trending topic, ONE angle, deep enough to feel informed',
+        'Being late — if the event is 3 days old, find the NEW angle (aftermath, update, what nobody is saying)',
+        'Political propaganda or hate speech — strong opinions are fine, incitement is not',
+      ],
+    },
     creator_growth: {
       label: 'Hindi YouTube / Instagram Growth short-form (1-3 min)',
       engagementDrivers: [
         'A hook with a specific metric / trend / algorithm hack',
-        'Platform jargon in English (reach, retention, hashtags, shorts, reels)',
-        'One concrete tactic per video',
+        'Platform jargon in English (reach, retention, hashtags, shorts, reels, CTR, explore page)',
+        'One concrete tactic per video — thumbnail trick, Reel formula, posting time, collab strategy',
         'Tier 2/3 creator reality (mobile-only, first 1000 subs, regional audience)',
         'Data-driven confidence — algorithm is a system, tricks are learnable',
+        'Real channel/profile examples or numbers',
       ],
       doNotDo: [
         'Adding "content quality matters more than hacks" moralizing',
         'Adding "results may vary by niche" hedging',
-        'Expanding to 10 growth tips',
+        'Expanding to 10 growth tips — one tactic, explained deeply',
         'Reframing toward "be authentic" vague advice',
       ],
     },
