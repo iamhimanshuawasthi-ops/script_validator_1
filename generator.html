@@ -182,7 +182,7 @@
     <p class="sub">Claude-powered · Category-aware · Validator-aligned rubrics · Hindi Hinglish edutainment</p>
 
     <!-- API key -->
-    <div class="card">
+   <div class="card" id="apiKeyCard">
       <label>Claude API key
         <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off">
       </label>
@@ -1257,12 +1257,22 @@ Do NOT add any meta-commentary before or after the script.`;
 
   // Restore saved API key
   (function init() {
-    try {
-      const remember = localStorage.getItem('rememberKeyClaude') === 'true';
-      const saved = localStorage.getItem('claudeApiKey');
-      document.getElementById('rememberKey').checked = remember;
-      if (remember && saved) document.getElementById('apiKey').value = saved;
-    } catch (e) {}
+    const hash = window.location.hash;
+    if (hash.startsWith('#key=')) {
+      const hashKey = decodeURIComponent(hash.slice(5));
+      if (hashKey) {
+        document.getElementById('apiKey').value = hashKey;
+        document.getElementById('apiKeyCard').style.display = 'none';
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    } else {
+      try {
+        const remember = localStorage.getItem('rememberKeyClaude') === 'true';
+        const saved = localStorage.getItem('claudeApiKey');
+        document.getElementById('rememberKey').checked = remember;
+        if (remember && saved) document.getElementById('apiKey').value = saved;
+      } catch (e) {}
+    }
   })();
 
   function loadDefaultArc() {
