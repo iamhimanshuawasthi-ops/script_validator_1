@@ -72,6 +72,22 @@
       cursor: pointer;
     }
     button.ghost:hover { background: #f9fafb; }
+    button.ai-gen {
+      background: linear-gradient(135deg, #7c3aed, #6366f1);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    button.ai-gen:hover:not(:disabled) { opacity: 0.9; }
+    button.ai-gen:disabled { opacity: 0.5; cursor: not-allowed; }
     .hint { font-size: 12px; color: #6b7280; margin-top: 4px; }
     .toolbar { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
     .toolbar-spacer { flex: 1; }
@@ -248,6 +264,24 @@
             </label>
           </div>
         </div>
+        <!-- AI Arc Generator -->
+        <div style="background:#f0f0ff; border:1px solid #c7d2fe; border-radius:8px; padding:14px 16px; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+            <span style="font-weight:700; font-size:13px; color:#4338ca;">✦ AI Arc Generator</span>
+            <span class="hint" style="margin:0;">Describe what you want the series to cover — Claude will generate the episode arc plan.</span>
+          </div>
+          <textarea id="seriesDescription" placeholder="Describe what the series should cover. Example:
+
+'Mahabharat ke Rahasya' — 8 episodes covering lesser-known secrets of Mahabharat. Start with the most shocking secret about Draupadi, build through hidden stories of Karna, Bhishma, and Krishna's strategy, reveal the real reason behind the war, and end with the lesson that modern India can learn from it. Keep it engaging — each episode should end with a cliffhanger for the next one." style="min-height:100px; font-size:13px;"></textarea>
+          <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
+            <button class="ai-gen" type="button" id="aiArcBtn" onclick="generateArcWithAI()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
+              Generate Arc with AI
+            </button>
+            <span id="aiArcStatus" class="hint" style="margin:0;"></span>
+          </div>
+        </div>
+
         <label>Episode arc plan
           <textarea id="seriesArc" placeholder="Define the narrative purpose of each episode. Example:
 
@@ -1184,6 +1218,146 @@ Do NOT add any meta-commentary before or after the script.`;
   function loadDefaultArc() {
     const total = parseInt(document.getElementById('totalEpisodes').value, 10) || 8;
     document.getElementById('seriesArc').value = getDefaultArc(total);
+  }
+
+  // AI Arc Generator — calls Claude to generate episode arc from description
+  async function generateArcWithAI() {
+    const apiKey = document.getElementById('apiKey').value.trim();
+    if (!apiKey) { alert('Please enter your Claude API key first.'); return; }
+
+    const description = document.getElementById('seriesDescription').value.trim();
+    if (!description) { alert('Please describe what the series should cover.'); return; }
+
+    const totalEpisodes = parseInt(document.getElementById('totalEpisodes').value, 10) || 8;
+    const seriesName = document.getElementById('series').value.trim() || 'Untitled Series';
+    const category = document.getElementById('category').value;
+
+    const btn = document.getElementById('aiArcBtn');
+    const status = document.getElementById('aiArcStatus');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Generating...';
+    status.textContent = 'Calling Claude Sonnet 4...';
+    status.style.color = '#6b7280';
+
+    const prompt = `You are a content strategist for Master App (by EloElo), a Hindi edutainment short-video platform for tier 2/3 India, ages 18-35. Every video is 1-3 minutes, spoken Hinglish (Roman script), made for mobile-first viewers who will scroll away in 2 seconds if the hook doesn't land.
+
+TASK: Generate a DETAILED ${totalEpisodes}-episode arc template for the series "${seriesName}" in the "${category}" category.
+
+USER'S VISION FOR THE SERIES:
+${description}
+
+=== WHAT A GREAT TEMPLATE LOOKS LIKE ===
+Each episode entry must include ALL of these:
+1. A compelling Hinglish episode title in quotes (click-bait level curiosity)
+2. What NOT to do — the obvious/boring approach that must be avoided
+3. What TO do — the specific content, people, events, or angles this episode covers
+4. The narrative purpose — WHY this episode exists at this position in the arc
+5. An "End hook" — the specific cliffhanger or tease that pulls viewers to the next episode
+
+=== SERIES ARC ENERGY PATTERN ===
+- Ep 1: DO NOT start from the beginning. Start from the MOST dramatic moment — a crisis, a shock, a number that makes viewers gasp. Then flash back to the origin. This creates tension because the audience knows something bad/big is coming.
+- Eps 2-${Math.max(2, Math.floor(totalEpisodes * 0.6))}: Build the story progressively. Each episode covers ONE specific chapter/phase/person. Progressive depth — basics to advanced. Mix facts with human drama.
+- Around Ep ${Math.ceil(totalEpisodes / 2)}: EMOTIONAL episode — tragedy, personal struggle, vulnerability. This is the heart of the series. Makes viewers feel something, not just learn.
+- Eps ${Math.max(3, Math.floor(totalEpisodes * 0.6) + 1)}-${totalEpisodes - 1}: The payoff episodes — big deals, proud moments, twists, modern-day impact.
+- Ep ${totalEpisodes}: CLOSE ALL LOOPS from Ep 1. Connect the ending to the opening. Legacy framing. Strong CTA.
+
+=== RULES ===
+1. Be HYPER-SPECIFIC to the user's description. Use real names, real events, real numbers, real years wherever possible. Research-level detail.
+2. Every episode must work STANDALONE (value even if watched alone) but be RICHER in sequence.
+3. Non-final episodes must tease the NEXT episode specifically in the end hook — name what's coming.
+4. The series must feel like a "Rise, Fall, Rise" or "Mystery to Revelation" narrative — NOT a Wikipedia chronology.
+5. Episode titles must be in Hinglish (Roman script), curiosity-driven, specific. NOT generic like "The Beginning" or "The Journey."
+
+=== OUTPUT FORMAT ===
+Plain text. For each episode write a paragraph with this structure:
+
+Ep [N] — [Role]: "[Hinglish Episode Title]"
+[2-4 sentences: What specific content this episode covers. Name the people, events, facts, numbers. What NOT to do (the boring approach). What TO do instead (the compelling approach). Why this episode matters at this position.]
+End hook: "[The specific cliffhanger line or tease for the next episode]"
+
+Output ONLY the episode template. No preamble, no "Here's the template", no markdown formatting, no summary at the end.`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 4096,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      });
+
+      if (!res.ok) {
+        const errBody = await res.text();
+        throw new Error(`Claude API error (${res.status}): ${errBody}`);
+      }
+
+      const data = await res.json();
+      const arcText = data.content?.[0]?.text;
+      if (!arcText) throw new Error('Empty response from Claude.');
+
+      // Check if response was truncated (stop_reason = max_tokens)
+      if (data.stop_reason === 'max_tokens') {
+        status.textContent = 'Generating... (continuing truncated response)';
+        // Send continuation request
+        const contRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true',
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 4096,
+            messages: [
+              { role: 'user', content: prompt },
+              { role: 'assistant', content: arcText },
+              { role: 'user', content: 'Continue from where you stopped. Complete the remaining episodes.' },
+            ],
+          }),
+        });
+        if (contRes.ok) {
+          const contData = await contRes.json();
+          const contText = contData.content?.[0]?.text || '';
+          // Merge: original + continuation
+          const fullArc = arcText.trim() + '\n\n' + contText.trim();
+          document.getElementById('seriesArc').value = fullArc;
+        } else {
+          // Use what we got even if continuation failed
+          document.getElementById('seriesArc').value = arcText.trim() + '\n\n[Note: Response was truncated. You may want to regenerate or add remaining episodes manually.]';
+        }
+      } else {
+        // Not truncated — fill directly
+        document.getElementById('seriesArc').value = arcText.trim();
+      }
+
+      status.textContent = 'Arc generated successfully!';
+      status.style.color = '#059669';
+
+      // Flash the arc textarea to draw attention
+      const arcField = document.getElementById('seriesArc');
+      arcField.style.borderColor = '#059669';
+      arcField.style.boxShadow = '0 0 0 3px rgba(5,150,105,0.15)';
+      setTimeout(() => {
+        arcField.style.borderColor = '#d1d5db';
+        arcField.style.boxShadow = 'none';
+      }, 2000);
+
+    } catch (err) {
+      status.textContent = 'Error: ' + err.message;
+      status.style.color = '#dc2626';
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg> Generate Arc with AI';
+    }
   }
 
   // Show/hide series arc section when series name is filled
