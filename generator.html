@@ -170,6 +170,59 @@
     .history-row.active { background: #eef2ff; }
     .history-snippet { max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #374151; }
     .history-time { color: #9ca3af; font-size: 12px; white-space: nowrap; }
+    /* Timeline */
+    .timeline { position: relative; padding-left: 0; }
+    .ep-card { background: white; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 12px; border-left: 4px solid #d1d5db; transition: border-color 0.2s; }
+    .ep-card.active { border-left-color: #6366f1; }
+    .ep-card.done { border-left-color: #059669; }
+    .ep-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+    .ep-header h3 { margin: 0; font-size: 15px; font-weight: 700; }
+    .ep-badge { font-size: 11px; padding: 2px 10px; border-radius: 999px; font-weight: 600; }
+    .ep-badge.done { background: #d1fae5; color: #065f46; }
+    .ep-badge.active { background: #e0e7ff; color: #3730a3; }
+    .ep-badge.pending { background: #f3f4f6; color: #6b7280; }
+    .ep-body { margin-top: 16px; }
+    .ep-body.collapsed { display: none; }
+    .ep-script-preview { font-size: 13px; color: #6b7280; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+
+    /* Option cards */
+    .opt-group { margin: 12px 0; }
+    .opt-group label.opt-label { font-weight: 700; font-size: 13px; margin-bottom: 8px; color: #374151; }
+    .opt-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; font-size: 13px; line-height: 1.55; }
+    .opt-item:hover { border-color: #6366f1; background: #f5f3ff; }
+    .opt-item.selected { border-color: #6366f1; background: #eef2ff; }
+    .opt-item input[type="radio"] { margin-top: 3px; flex-shrink: 0; }
+
+    /* Topic chips */
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+    .chip { padding: 6px 14px; border-radius: 999px; font-size: 13px; background: #f3f4f6; color: #374151; cursor: pointer; border: 1px solid #e5e7eb; transition: all 0.15s; }
+    .chip:hover { background: #e0e7ff; border-color: #6366f1; color: #3730a3; }
+
+    /* Rewrite bar */
+    .rewrite-bar { display: flex; gap: 8px; margin-top: 0; align-items: center; }
+    .rewrite-bar input { flex: 1; }
+    .rewrite-preset { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 999px; padding: 3px 12px; font-size: 11px; color: #374151; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    .rewrite-preset:hover { background: #e0e7ff; border-color: #6366f1; color: #3730a3; }
+
+    /* Step indicator */
+    .step-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9ca3af; margin-bottom: 6px; }
+
+    /* Fact check */
+    .fact-btn { background: #fffbeb; border: 1px solid #fde68a; border-radius: 999px; padding: 4px 14px; font-size: 12px; color: #92400e; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .fact-btn:hover { background: #fef3c7; border-color: #f59e0b; }
+    .fact-btn.flag-btn { background: #fef3c7; }
+    .fact-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .fact-panel { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px 16px; margin-top: 10px; }
+    .fact-item { padding: 8px 0; border-bottom: 1px solid #fde68a; }
+    .fact-item:last-child { border-bottom: none; }
+    .fact-claim { font-size: 13px; font-weight: 600; color: #92400e; }
+    .fact-reason { font-size: 12px; color: #78716c; margin-top: 2px; }
+    .fact-link { font-size: 12px; color: #2563eb; text-decoration: none; margin-top: 4px; display: inline-block; }
+    .fact-link:hover { text-decoration: underline; }
+
+    /* Script editable area */
+    .script-edit { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px 24px; font-size: 15px; line-height: 1.75; white-space: pre-wrap; font-family: inherit; color: #1f2937; min-height: 200px; width: 100%; resize: vertical; }
+
     @media (max-width: 720px) {
       .row-3, .row-2 { grid-template-columns: 1fr; }
       .history-snippet { max-width: 160px; }
@@ -195,8 +248,9 @@
       </div>
     </div>
 
-    <!-- Input form -->
-    <div class="card">
+    <!-- Series Setup -->
+    <div class="card" id="setupCard">
+      <div style="font-weight:700; font-size:16px; margin-bottom:12px; color:#1e293b;">Series Setup</div>
       <div class="row row-3">
         <div>
           <label>Category
@@ -204,7 +258,6 @@
               <option value="New Business Ideas">New Business Ideas</option>
               <option value="Banking & Finance" selected>Banking & Finance</option>
               <option value="Secrets of India">Secrets of India</option>
-              <option value="Learn To Earn Online">Learn To Earn Online</option>
               <option value="AI Se Editing">AI Se Editing</option>
               <option value="Astrology & Kundli">Astrology & Kundli</option>
               <option value="Phone & Internet Tips">Phone & Internet Tips</option>
@@ -219,6 +272,9 @@
               <option value="Aadhaar & PAN Updates">Aadhaar & PAN Updates</option>
             </select>
           </label>
+          <div id="sarkariNotice" class="hidden" style="margin-top:6px; background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:6px 10px; font-size:12px; color:#92400e;">
+            Sarkari will generate <strong style="font-weight:600">outlines only</strong> — hook options, key points, and cliffhanger options.
+          </div>
         </div>
         <div>
           <label>Duration (seconds)
@@ -231,48 +287,32 @@
           </label>
         </div>
       </div>
-      <div class="row row-2">
+      <div class="row row-3">
         <div>
           <label>Series name
             <input type="text" id="series" placeholder="e.g. Mahabharat ke Rahasya">
           </label>
         </div>
         <div>
-          <label>Topic / angle
-            <input type="text" id="topic" placeholder="e.g. Hanuman ne poora pahaad kyun uthaya?">
+          <label>Total episodes
+            <input type="number" id="totalEpisodes" value="8" min="2" max="30">
+          </label>
+        </div>
+        <div>
+          <label>Additional instructions (optional)
+            <input type="text" id="extraInstructions" placeholder="e.g. Focus on emotional angle">
           </label>
         </div>
       </div>
 
-      <!-- Series arc section — shows when series name is filled -->
-      <div id="seriesArcSection" class="hidden" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px 18px; margin-bottom:14px;">
-        <div style="font-weight:700; font-size:14px; margin-bottom:10px; color:#1e293b;">Series Arc Structure</div>
-        <div class="row row-3">
-          <div>
-            <label>Total episodes
-              <input type="number" id="totalEpisodes" value="8" min="2" max="30">
-            </label>
-          </div>
-          <div>
-            <label>Generate episode #
-              <input type="number" id="currentEpisode" value="1" min="1" max="30">
-            </label>
-          </div>
-          <div>
-            <label>Episode title
-              <input type="text" id="episode" placeholder="e.g. Ep 4: Draupadi ka Cheerharan">
-            </label>
-          </div>
-        </div>
-        <!-- AI Arc Generator -->
+      <!-- AI Arc Generator — shows when series name is filled -->
+      <div id="seriesArcSection" class="hidden" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px 18px; margin-top:14px;">
         <div style="background:#f0f0ff; border:1px solid #c7d2fe; border-radius:8px; padding:14px 16px; margin-bottom:14px;">
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
             <span style="font-weight:700; font-size:13px; color:#4338ca;">✦ AI Arc Generator</span>
             <span class="hint" style="margin:0;">Describe what you want the series to cover — Claude will generate the episode arc plan.</span>
           </div>
-          <textarea id="seriesDescription" placeholder="Describe what the series should cover. Example:
-
-'Mahabharat ke Rahasya' — 8 episodes covering lesser-known secrets of Mahabharat. Start with the most shocking secret about Draupadi, build through hidden stories of Karna, Bhishma, and Krishna's strategy, reveal the real reason behind the war, and end with the lesson that modern India can learn from it. Keep it engaging — each episode should end with a cliffhanger for the next one." style="min-height:100px; font-size:13px;"></textarea>
+          <textarea id="seriesDescription" placeholder="Describe what the series should cover. Example: 'Aditya Birla Empire — rags to riches journey, downtime in life, how they bought RCB, proud moments. Keep it dramatic.'" style="min-height:80px; font-size:13px;"></textarea>
           <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
             <button class="ai-gen" type="button" id="aiArcBtn" onclick="generateArcWithAI()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
@@ -281,32 +321,13 @@
             <span id="aiArcStatus" class="hint" style="margin:0;"></span>
           </div>
         </div>
-
         <label>Episode arc plan
-          <textarea id="seriesArc" placeholder="Define the narrative purpose of each episode. Example:
-
-Ep 1 — Hook: Introduce the mystery/question that drives the series. End with a cliffhanger.
-Ep 2 — Curiosity: Deepen the mystery. Reveal one surprising detail. Leave viewer wanting more.
-Ep 3 — Suspense: Build tension. Introduce the conflict or the 'villain' of the story.
-Ep 4 — Detail: Deep-dive into the core fact/story. This is the 'meat' episode.
-Ep 5 — Detail: Continue building — add a human angle, a real person, a real example.
-Ep 6 — Detail: The turning point — reveal the key insight or the answer starts forming.
-Ep 7 — Mistake (optional): What goes wrong / common misconception / what NOT to do.
-Ep 8 — Conclusion: Deliver the final takeaway. Close all loops. Strong CTA for next series." style="min-height:160px; font-size:13px;"></textarea>
+          <textarea id="seriesArc" placeholder="Generated arc will appear here. You can also type/edit manually." style="min-height:140px; font-size:13px;"></textarea>
         </label>
         <div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
           <button class="ghost" type="button" onclick="loadDefaultArc()">Load default arc template</button>
-          <span class="hint" style="margin:0;">This arc plan is injected into the prompt so Claude knows where each episode fits. Leave blank to use default arc automatically.</span>
+          <button class="primary" type="button" onclick="startTimeline()" style="margin-left:auto;">Start Writing Episodes</button>
         </div>
-      </div>
-
-      <label>Additional instructions (optional)
-        <textarea id="extraInstructions" placeholder="Any specific angle, tone, or points you want covered... e.g. 'Focus on the emotional angle of Sita's wait' or 'Include a specific remedy for Shani dasha'" style="min-height:80px;"></textarea>
-      </label>
-      <div class="toolbar">
-        <button class="primary" id="runBtn" onclick="generateScript()">Generate Script</button>
-        <button class="ghost" onclick="clearAll()">Clear</button>
-        <span id="status" style="color:#6b7280; font-size:13px;"></span>
       </div>
     </div>
 
@@ -315,38 +336,8 @@ Ep 8 — Conclusion: Deliver the final takeaway. Close all loops. Strong CTA for
       <div class="err" id="errorText"></div>
     </div>
 
-    <!-- Result -->
-    <div id="resultCard" class="card hidden">
-      <div class="meta-bar">
-        <div>
-          <span class="tag" id="resultCategory"></span>
-          <span class="tag" style="background:#d1fae5;color:#065f46;" id="resultDuration"></span>
-        </div>
-        <div class="info">
-          <span id="resultTiming"></span>
-          <button class="ghost" onclick="copyScript()" style="margin-left:8px;">Copy Script</button>
-          <span id="copyFeedback" class="copy-feedback"></span>
-        </div>
-      </div>
-      <div class="script-output" id="scriptOutput"></div>
-      <!-- Feedback -->
-      <div id="feedbackSection" style="margin-top:16px; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:14px 16px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="font-weight:700; font-size:13px; color:#92400e;">Feedback</span>
-          <span class="hint" style="margin:0;">Share what can be improved in this script</span>
-        </div>
-        <textarea id="feedbackText" placeholder="What should be improved? e.g. hook was weak, too many topics, takeaway was generic, language too formal, tatsam words used..." style="min-height:60px; font-size:13px;"></textarea>
-        <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
-          <button class="ghost" onclick="submitFeedback()" id="feedbackBtn" style="background:#f59e0b; color:white; border:none; font-weight:600;">Submit Feedback</button>
-          <span id="feedbackStatus" class="hint" style="margin:0;"></span>
-        </div>
-      </div>
-
-      <details>
-        <summary>Full prompt sent to Claude</summary>
-        <pre id="rawPrompt"></pre>
-      </details>
-    </div>
+    <!-- Episode Timeline -->
+    <div id="timeline" class="timeline"></div>
 
     <!-- History -->
     <div id="historyCard" class="card hidden">
@@ -382,7 +373,8 @@ Ep 8 — Conclusion: Deliver the final takeaway. Close all loops. Strong CTA for
     'banking & finance': 'finance',
     'banking and finance': 'finance',
     'secrets of india': 'secrets_of_india',
-    'learn to earn online': 'learn_to_earn',
+
+
     'ai se editing': 'ai_editing',
     'astrology & kundli': 'astrology',
     'astrology and kundli': 'astrology',
@@ -510,24 +502,8 @@ Ep 8 — Conclusion: Deliver the final takeaway. Close all loops. Strong CTA for
         'Replacing vivid specifics with generic reverence ("India is a great country")',
       ],
     },
-    learn_to_earn: {
-      label: 'Hindi Learn-To-Earn-Online short-form (1-3 min)',
-      engagementDrivers: [
-        'A hook with a specific earning method + realistic daily/monthly figure',
-        'Specific app / platform names (Meesho, Upwork, Fiverr, YouTube, Instagram)',
-        'Tier 2/3 reality — home-based, mobile-only, no fancy laptop required',
-        'One skill + one platform per video',
-        'Realistic earning range, not inflated screenshots',
-        'Steps to start in the next 24 hours',
-      ],
-      doNotDo: [
-        'Adding "earnings not guaranteed" disclaimers',
-        'Reframing as MLM / crypto / dropshipping hype',
-        'Replacing specific platform names with generic "freelancing websites"',
-        'Expanding to 5-10 earning ideas',
-        'Making tone motivational-guru — stay chai-stall-friend tone',
-      ],
-    },
+
+
     ai_editing: {
       label: 'Hindi AI Se Editing / creator-tools short-form (1-3 min)',
       engagementDrivers: [
@@ -826,6 +802,7 @@ Total budget: ~${Math.round(duration * 2.5)} words for ${duration}s. Distribute 
    - DO NOT use hyperbole: "sabse bada rahasya", "aaj tak kisi ne nahi bataya", "shocking sach", "zindagi badal degi"
    - DO NOT use distant future-threat framing ("10 saal baad...", "ek din aayega jab...") — if the threat isn't immediate, the viewer scrolls. Make it feel like TODAY's problem.
    - A confident, specific opening does NOT need hype words
+   - Add [B-Roll: ...] after the hook line — describe the opening visual (e.g. "B-Roll: close-up of calculator showing ₹1 crore")
 
 2. BODY (middle 60-70% / ~${Math.round(duration * 2.5 * 0.65)} words — HARD CEILING)
    - EXACTLY 2-3 ESCALATING beats — each one more surprising than the last
@@ -835,6 +812,7 @@ Total budget: ~${Math.round(duration * 2.5)} words for ${duration}s. Distribute 
    - DO NOT dump facts flat: "X hai, Y hai, Z hai" is a list, not a story. Instead, reveal each fact as a SURPRISE that changes what the viewer thought they knew. Each beat must make the viewer go "achha? phir?"
    - Keep ONE thread — do NOT introduce competing sub-topics
    - HARD LIMIT: maximum 3 paragraphs. If you wrote 4+, you have topic creep. Merge or delete.
+   - B-ROLL NOTES: After each body beat, add a [B-Roll: ...] tag describing what visual/footage to show on screen during that section. Be specific — "B-Roll: phone screen showing SBI app settings page" not just "B-Roll: phone". These help the video editor know what to shoot or source.
 
 3. TAKEAWAY (last 20% before CTA / ~${Math.round(duration * 2.5 * 0.15)} words)
    - Deliver a single, crisp takeaway that DIRECTLY answers the question the hook asked
@@ -864,6 +842,23 @@ DO NOT:
     "aayu/umar", "badh jaati hai", "soch aayi", "samarpit", "zaroor", "apno ko/doston ko"
   - One or two classical terms for flavor are fine (bhakti, darshan, tapasya, sindoor) — those are lived-in words
   - But a whole script in tatsam register is pravachan, not storytelling
+
+=== REVEAL CONTROL FOR SERIES EPISODES ===
+When writing a series (multiple episodes), control how much you reveal:
+  - Episode 1: TEASE ONLY. Reveal maximum 20% of the full story. Create mystery, ask the big question, show one shocking detail — then STOP. The viewer must feel "I NEED to watch episode 2." Never give away the full answer or resolution in Ep 1.
+  - Early episodes (Ep 2-3): Reveal 30-40% each. Each episode adds one major piece of the puzzle. Always hold back the biggest reveal.
+  - Middle episodes: Can go deeper (50-60% reveal per episode) but always end with something unresolved.
+  - Final episode: 100% reveal. Close ALL loops. Answer every question the series opened.
+  - RULE: If someone watches ONLY Ep 1 and feels they got the complete picture, you revealed too much. Ep 1 should leave them HUNGRY.
+
+=== NUMBER FRAMING — MAKE IT ATTRACTIVE ===
+Always reframe numbers for maximum impact:
+  - Long timelines are boring. "23 saal mein 52 lakh" → REFRAME as "₹10,000 se ₹1 crore ka safar" or "har mahine ek family dinner skip karo, crorepati bano"
+  - Use ASPIRATIONAL framing, not ACCURATE-BUT-BORING framing
+  - Round up to attractive numbers: "₹52.3 lakh" → "₹50 lakh+" or frame as "almost ₹1 crore with step-up"
+  - Use per-day or per-month framing for small amounts: "₹167 per day" hits harder than "₹5,000 per month"
+  - Compare to relatable expenses: "ek chai ki keemat mein" / "ek recharge se kam mein"
+  - NEVER lead with how many years something takes — lead with the result, then reveal the timeline as a pleasant surprise
 
 === COMMON SCRIPT FAILURES — AVOID THESE AT ALL COSTS ===
 These are the top reasons scripts get sent back for revision. Read carefully:
@@ -990,16 +985,21 @@ Category: Tech Tips | Topic: "WhatsApp privacy setting" | Duration: 90s | Score:
 
 ---BEGIN EXAMPLE SCRIPT---
 Tumhare WhatsApp mein ek setting hai jo kisi ko bhi tumhari last seen, profile photo, aur status dikhne deti hai — aur 80% log isse aaj bhi default pe chhode baithe hain.
+[B-Roll: WhatsApp app icon on phone home screen, then opening Settings → Privacy page showing "Everyone" selected]
 
 Matlab kya? Koi bhi random number — scammer ho, ex ho, ya koi stalker — tumhare baare mein sab kuch dekh sakta hai bina tumhe pata chale. Last seen se pata chalta hai tum raat ko 2 baje jaage the. Profile photo se face match hota hai. Status se pata chalta hai tum kahan gaye, kya kiya.
+[B-Roll: Split screen — left side shows a stranger's phone viewing "Last seen at 2:03 AM", right side shows the victim sleeping]
 
 Aur suniye — WhatsApp ka default setting "Everyone" pe hota hai. Matlab sirf tumhare contacts nahi, KISI BHI number ko yeh sab dikhta hai. Tumne number save nahi kiya? Koi farak nahi — woh tumhe dekh sakta hai.
+[B-Roll: WhatsApp Privacy settings screen zoomed in, highlighting "Everyone" with a red circle/arrow]
 
 Lekin ek kaam karo — WhatsApp kholo, Settings → Privacy → Last Seen "My Contacts" pe set karo, Profile Photo bhi "My Contacts", aur Status "My Contacts Except" karke un logon ko hatao jinhe dekhna nahi chahte. 30 second ka kaam hai, aur tumhari poori digital life private ho jaayegi.
+[B-Roll: Screen recording of actual steps — Settings → Privacy → changing each option from "Everyone" to "My Contacts", finger tapping each one]
 
 Toh abhi phone uthao, WhatsApp → Settings → Privacy — teenon cheezein "My Contacts" pe lagao. 30 second, bas.
 
 Mera naam hai ${creator || '<creator name>'}, aur agar yeh kaam aaya toh Master app ko apne ghar walon ke saath zaroor share karo — unka WhatsApp bhi default pe hoga. Milte hain Master ke agle episode mein.
+[B-Roll: Master App logo + download screen + share button animation]
 ---END EXAMPLE SCRIPT---
 
 Why this scores 120+:
@@ -1014,10 +1014,30 @@ Why this scores 120+:
 
 YOUR script must hit these same quality bars. Study this example.
 
-=== OUTPUT FORMAT ===
-Write ONLY the script text. No titles, no headings, no stage directions, no labels like "HOOK:" or "CTA:".
-Just the continuous spoken text from the first word to the last, as the creator will speak it.
-Do NOT add any meta-commentary before or after the script.`;
+=== OUTPUT FORMAT ===${catKey === 'sarkari_services' ? `
+For Sarkari Services, output a STRUCTURED OUTLINE (not a full script). Format:
+
+HOOK OPTIONS (pick one):
+1. [First hook option — specific scheme name + benefit + urgency]
+2. [Second hook option — different angle, same scheme]
+3. [Third hook option — fear/consequence angle]
+
+KEY POINTS TO COVER:
+- [Scheme name + exact benefit amount]
+- [Who is eligible — age, income, category]
+- [Documents required]
+- [Portal URL / helpline / CSC center steps]
+- [Deadline if any]
+
+CLIFFHANGER OPTIONS (pick one for next episode):
+1. [Tease next scheme or a hidden benefit of this one]
+2. [A common mistake people make with this scheme]
+3. [A related scheme most people don't know about]
+
+Output ONLY this outline structure. No full script, no prose paragraphs.` : `
+Write the script as continuous spoken text — no titles, no headings, no labels like "HOOK:" or "CTA:".
+After each section (hook, each body beat, takeaway, CTA), add a [B-Roll: ...] line describing what visual/footage should play on screen during that section. Be SPECIFIC — describe the exact screen, shot, or visual. Example: [B-Roll: phone screen showing SBI app → Profile → Transaction Limit page].
+Do NOT add any meta-commentary before or after the script.`}`;
   }
 
   // ============================================================
@@ -1055,139 +1075,775 @@ Do NOT add any meta-commentary before or after the script.`;
   }
 
   // ============================================================
-  // MAIN
+  // EPISODE STATE
   // ============================================================
-  let lastPrompt = '';
+  const episodes = [];
   let lastScript = '';
   const generationHistory = [];
 
-  async function generateScript() {
-    // Ensure user name is captured before first generation
-    ensureUserName();
-
-    const apiKey = document.getElementById('apiKey').value.trim();
-    const category = document.getElementById('category').value;
-    const duration = parseInt(document.getElementById('duration').value, 10) || 120;
-    const creator = document.getElementById('creator').value.trim();
-    const topic = document.getElementById('topic').value.trim();
-    const series = document.getElementById('series').value.trim();
-    const episode = document.getElementById('episode').value.trim();
-    const totalEpisodes = series ? parseInt(document.getElementById('totalEpisodes').value, 10) || 8 : 0;
-    const currentEpisode = series ? parseInt(document.getElementById('currentEpisode').value, 10) || 1 : 0;
-    const seriesArcRaw = series ? document.getElementById('seriesArc').value.trim() : '';
-    const seriesArc = seriesArcRaw || (series ? getDefaultArc(totalEpisodes) : '');
-    const extraInstructions = document.getElementById('extraInstructions').value.trim();
-
-    if (!apiKey) { showError('Please enter your Claude API key.'); return; }
-    if (!topic && !episode) { showError('Please enter a topic or episode title for the script.'); return; }
-
-    // Save key preference
-    const remember = document.getElementById('rememberKey').checked;
-    try {
-      if (remember) localStorage.setItem('claudeApiKey', apiKey);
-      else localStorage.removeItem('claudeApiKey');
-      localStorage.setItem('rememberKeyClaude', String(remember));
-    } catch (e) {}
-
-    const btn = document.getElementById('runBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Generating...';
-    document.getElementById('errorBox').classList.add('hidden');
-    document.getElementById('resultCard').classList.add('hidden');
-    document.getElementById('status').textContent = 'Sending to Claude Sonnet 4...';
-    const start = Date.now();
-
-    try {
-      const prompt = buildPrompt(category, topic, series, episode, creator, duration, totalEpisodes, currentEpisode, seriesArc, extraInstructions);
-      lastPrompt = prompt;
-
-      const scriptText = await callClaude(apiKey, prompt);
-      lastScript = scriptText;
-      const elapsed = Date.now() - start;
-
-      // Render
-      document.getElementById('resultCard').classList.remove('hidden');
-      document.getElementById('resultCategory').textContent = category;
-      document.getElementById('resultDuration').textContent = '~' + duration + 's';
-      document.getElementById('resultTiming').textContent = 'Generated in ' + elapsed + 'ms';
-      document.getElementById('scriptOutput').textContent = scriptText;
-      document.getElementById('rawPrompt').textContent = prompt;
-      document.getElementById('status').textContent = 'Done in ' + elapsed + 'ms';
-
-      // History & Logging
-      addToHistory(topic || episode, category, scriptText, series, currentEpisode, totalEpisodes);
-      logGeneration(category, series, currentEpisode, topic || episode, scriptText.length);
-
-      // Store meta for feedback & reset feedback UI
-      lastGenerationMeta = { category, series, episodeNum: currentEpisode, topic: topic || episode };
-      resetFeedback();
-      document.getElementById('feedbackSection').style.opacity = '1';
-
-    } catch (err) {
-      showError(err.message || String(err));
-      document.getElementById('status').textContent = '';
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Generate Script';
-    }
+  function getSetup() {
+    return {
+      apiKey: document.getElementById('apiKey').value.trim(),
+      category: document.getElementById('category').value,
+      duration: parseInt(document.getElementById('duration').value, 10) || 120,
+      creator: document.getElementById('creator').value.trim(),
+      series: document.getElementById('series').value.trim(),
+      totalEpisodes: parseInt(document.getElementById('totalEpisodes').value, 10) || 8,
+      seriesArc: document.getElementById('seriesArc').value.trim(),
+      extraInstructions: document.getElementById('extraInstructions').value.trim(),
+    };
   }
 
   function showError(msg) {
     const box = document.getElementById('errorBox');
     box.classList.remove('hidden');
     document.getElementById('errorText').textContent = msg;
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  function clearAll() {
-    document.getElementById('topic').value = '';
-    document.getElementById('series').value = '';
-    document.getElementById('episode').value = '';
-    document.getElementById('creator').value = '';
-    document.getElementById('totalEpisodes').value = '8';
-    document.getElementById('currentEpisode').value = '1';
-    document.getElementById('seriesArc').value = '';
-    document.getElementById('seriesArcSection').classList.add('hidden');
-    document.getElementById('extraInstructions').value = '';
-    document.getElementById('errorBox').classList.add('hidden');
-    document.getElementById('resultCard').classList.add('hidden');
-    document.getElementById('status').textContent = '';
-    lastScript = '';
-    lastPrompt = '';
+  // ============================================================
+  // TIMELINE RENDERING
+  // ============================================================
+  function startTimeline() {
+    const s = getSetup();
+    if (!s.series) { alert('Please enter a series name first.'); return; }
+    if (!s.apiKey) { showError('Please enter your Claude API key.'); return; }
+    ensureUserName();
+    if (!episodes.length) addEpisode();
   }
 
-  async function copyScript() {
-    if (!lastScript) return;
+  function addEpisode() {
+    const s = getSetup();
+    const num = episodes.length + 1;
+    const prevCliff = episodes.length > 0 ? (episodes[episodes.length - 1].selectedCliffhanger || '') : '';
+    episodes.push({
+      num,
+      title: '',
+      topic: '',
+      hookOptions: [],
+      cliffOptions: [],
+      selectedHook: '',
+      selectedCliffhanger: '',
+      script: '',
+      status: 'active',
+      prevCliffhanger: prevCliff,
+    });
+    // Collapse previous episodes
+    for (let i = 0; i < episodes.length - 1; i++) {
+      if (episodes[i].status === 'active') episodes[i].status = 'done';
+    }
+    renderTimeline();
+    document.getElementById('ep_card_' + num).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderTimeline() {
+    const container = document.getElementById('timeline');
+    container.innerHTML = '';
+    for (const ep of episodes) {
+      container.innerHTML += renderEpisodeCard(ep);
+    }
+  }
+
+  function renderEpisodeCard(ep) {
+    const isActive = ep.status === 'active';
+    const isDone = ep.status === 'done';
+    const s = getSetup();
+
+    let html = '<div class="ep-card ' + (isActive ? 'active' : isDone ? 'done' : '') + '" id="ep_card_' + ep.num + '">';
+
+    // Header
+    html += '<div class="ep-header" onclick="toggleEpisode(' + ep.num + ')">';
+    html += '<h3>Episode ' + ep.num + (ep.title ? ' — ' + escapeHtml(ep.title) : '') + '</h3>';
+    if (isDone) html += '<span class="ep-badge done">Done</span>';
+    else if (isActive) html += '<span class="ep-badge active">Writing</span>';
+    html += '</div>';
+
+    // Collapsed preview
+    if (isDone && !isActive) {
+      html += '<div class="ep-script-preview">' + escapeHtml((ep.script || '').slice(0, 120)) + '...</div>';
+      html += '<div class="ep-body collapsed" id="ep_body_' + ep.num + '">';
+    } else {
+      html += '<div class="ep-body" id="ep_body_' + ep.num + '">';
+    }
+
+    // Topic input + suggest
+    html += '<div class="step-label">Step 1 — Episode details</div>';
+    html += '<div class="row row-2"><div>';
+    html += '<label>Episode title<input type="text" id="epTitle_' + ep.num + '" value="' + escapeHtml(ep.title) + '" placeholder="e.g. Draupadi ka Cheerharan" onchange="updateEpField(' + ep.num + ',\'title\',this.value)"></label>';
+    html += '</div><div>';
+    html += '<label>Topic / angle</label>';
+    html += '<div style="display:flex;gap:8px;"><input type="text" id="epTopic_' + ep.num + '" value="' + escapeHtml(ep.topic) + '" placeholder="e.g. Hanuman ne poora pahaad kyun uthaya?" onchange="updateEpField(' + ep.num + ',\'topic\',this.value)">';
+    html += '<button class="ai-gen" onclick="suggestTopics(' + ep.num + ')" id="suggestBtn_' + ep.num + '" style="white-space:nowrap;font-size:12px;padding:6px 12px;">';
+    html += (ep._topicSuggestions ? '↻ More ideas' : '✦ Suggest') + '</button></div>';
+    html += '</div></div>';
+    // Arc hint: if the series arc mentions this episode, show it
+    const arcHint = getArcHintForEpisode(ep.num);
+    if (arcHint && !ep.topic) {
+      html += '<div class="arc-hint" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:12px;color:#0369a1;display:flex;align-items:center;gap:8px;">';
+      html += '<span style="flex:1;"><strong>From your arc plan:</strong> ' + escapeHtml(arcHint) + '</span>';
+      html += '<button class="ghost" onclick="useArcHint(' + ep.num + ',this)" style="font-size:11px;padding:3px 10px;white-space:nowrap;">Use this</button>';
+      html += '</div>';
+    }
+    html += '<div id="topicChips_' + ep.num + '" class="chip-row' + (ep._topicSuggestions ? '' : ' hidden') + '">';
+    if (ep._topicSuggestions) {
+      html += ep._topicSuggestions.map(function(t) {
+        return '<span class="chip" onclick="pickTopic(' + ep.num + ',this.textContent)">' + escapeHtml(t) + '</span>';
+      }).join('');
+    }
+    html += '</div>';
+
+    // Previous cliffhanger context
+    if (ep.prevCliffhanger) {
+      html += '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 12px;margin:8px 0;font-size:12px;color:#166534;">';
+      html += '<strong style="font-weight:600;">Previous episode ended with:</strong> ' + escapeHtml(ep.prevCliffhanger);
+      html += '</div>';
+    }
+
+    // Step 2: Hook & Cliffhanger options
+    html += '<div style="margin-top:16px;"><div class="step-label">Step 2 — Hook & cliffhanger options</div>';
+    if (!ep.hookOptions.length) {
+      html += '<button class="ai-gen" onclick="generateOptions(' + ep.num + ')" id="optBtn_' + ep.num + '" style="margin-bottom:8px;">';
+      html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>';
+      html += ' Generate hook & cliffhanger options</button>';
+      html += '<span id="optStatus_' + ep.num + '" class="hint"></span>';
+    } else {
+      // Hook options
+      html += '<div class="opt-group"><label class="opt-label">Select a hook:</label>';
+      for (let i = 0; i < ep.hookOptions.length; i++) {
+        const sel = ep.selectedHook === ep.hookOptions[i] ? ' selected' : '';
+        html += '<div class="opt-item' + sel + '" onclick="selectHook(' + ep.num + ',' + i + ')">';
+        html += '<input type="radio" name="hook_' + ep.num + '"' + (sel ? ' checked' : '') + '>';
+        html += '<span>' + escapeHtml(ep.hookOptions[i]) + '</span></div>';
+      }
+      html += '<input type="text" id="customHook_' + ep.num + '" placeholder="Or write your own hook..." style="margin-top:4px;font-size:13px;" onchange="selectCustomHook(' + ep.num + ',this.value)">';
+      html += '</div>';
+
+      // Cliffhanger options
+      html += '<div class="opt-group"><label class="opt-label">Select a cliffhanger / end hook:</label>';
+      for (let i = 0; i < ep.cliffOptions.length; i++) {
+        const sel = ep.selectedCliffhanger === ep.cliffOptions[i] ? ' selected' : '';
+        html += '<div class="opt-item' + sel + '" onclick="selectCliff(' + ep.num + ',' + i + ')">';
+        html += '<input type="radio" name="cliff_' + ep.num + '"' + (sel ? ' checked' : '') + '>';
+        html += '<span>' + escapeHtml(ep.cliffOptions[i]) + '</span></div>';
+      }
+      html += '<input type="text" id="customCliff_' + ep.num + '" placeholder="Or write your own cliffhanger..." style="margin-top:4px;font-size:13px;" onchange="selectCustomCliff(' + ep.num + ',this.value)">';
+      html += '</div>';
+    }
+    html += '</div>';
+
+    // Step 3: Generate script
+    html += '<div style="margin-top:16px;"><div class="step-label">Step 3 — Generate script</div>';
+    if (!ep.script) {
+      html += '<button class="primary" onclick="generateEpisodeScript(' + ep.num + ')" id="genBtn_' + ep.num + '">Generate Script for Episode ' + ep.num + '</button>';
+      html += ' <span id="genStatus_' + ep.num + '" class="hint"></span>';
+    } else {
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+      html += '<span class="tag" style="background:#e0e7ff;color:#3730a3;">Episode ' + ep.num + '</span>';
+      html += '<button class="ghost" onclick="copyEpScript(' + ep.num + ')">Copy Script</button>';
+      html += '</div>';
+      html += '<textarea class="script-edit" id="scriptText_' + ep.num + '" onchange="updateEpField(' + ep.num + ',\'script\',this.value)">' + escapeHtml(ep.script) + '</textarea>';
+
+      // Rewrite bar — presets + custom
+      html += '<div class="rewrite-section" style="margin-top:12px;">';
+      html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">';
+      html += '<span class="step-label" style="margin:0;">Quick rewrite:</span>';
+      html += '<button class="rewrite-preset" onclick="quickRewrite(' + ep.num + ',\'Make this hook stronger and more surprising — add a specific number or name\')">Stronger hook</button>';
+      html += '<button class="rewrite-preset" onclick="quickRewrite(' + ep.num + ',\'Add [B-Roll: ...] suggestions after each key visual moment\')">+ B-Roll</button>';
+      html += '<button class="rewrite-preset" onclick="quickRewrite(' + ep.num + ',\'Simplify the language — use shorter sentences, more everyday Hinglish, less formal\')">Simplify</button>';
+      html += '<button class="rewrite-preset" onclick="quickRewrite(' + ep.num + ',\'Make this more dramatic and emotional — add tension, stakes, viewer investment\')">More dramatic</button>';
+      html += '<button class="rewrite-preset" onclick="quickRewrite(' + ep.num + ',\'Make the CTA/cliffhanger at the end much more specific and irresistible\')">Better cliffhanger</button>';
+      html += '</div>';
+      html += '<div class="rewrite-bar">';
+      html += '<input type="text" id="rewritePrompt_' + ep.num + '" placeholder="Select text above → describe change (or use a quick button)">';
+      html += '<button class="ai-gen" onclick="rewriteSelection(' + ep.num + ')" style="white-space:nowrap;font-size:12px;padding:6px 12px;">Rewrite</button>';
+      html += '<button class="ghost" onclick="undoRewrite(' + ep.num + ')" id="undoBtn_' + ep.num + '" style="font-size:11px;padding:5px 10px;display:' + (ep._undoStack && ep._undoStack.length ? 'inline-flex' : 'none') + ';" title="Undo last rewrite">Undo</button>';
+      html += '</div>';
+      html += '<div id="rewriteStatus_' + ep.num + '" class="hint" style="margin-top:4px;"></div>';
+      html += '</div>';
+
+      // Fact verification bar
+      html += '<div style="display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;">';
+      html += '<span class="step-label" style="margin:0;">Verify:</span>';
+      html += '<button class="fact-btn" onclick="factCheckGoogle(' + ep.num + ')" title="Select text, then click to Google it">🔍 Google selected text</button>';
+      html += '<button class="fact-btn flag-btn" onclick="flagFacts(' + ep.num + ')" id="flagBtn_' + ep.num + '" title="AI scans script and flags uncertain claims">⚠ Flag uncertain facts</button>';
+      html += '<span id="factStatus_' + ep.num + '" class="hint"></span>';
+      html += '</div>';
+
+      // Fact summary panel (shows after flagging)
+      if (ep._factFlags && ep._factFlags.length) {
+        html += '<div class="fact-panel" id="factPanel_' + ep.num + '">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+        html += '<strong style="font-size:13px;color:#92400e;">Flagged claims (' + ep._factFlags.length + ')</strong>';
+        html += '<button class="ghost" onclick="clearFlags(' + ep.num + ')" style="font-size:11px;padding:2px 8px;">Clear</button>';
+        html += '</div>';
+        for (let fi = 0; fi < ep._factFlags.length; fi++) {
+          const f = ep._factFlags[fi];
+          const googleUrl = 'https://www.google.com/search?q=' + encodeURIComponent(f.claim);
+          html += '<div class="fact-item">';
+          html += '<div class="fact-claim">' + escapeHtml(f.claim) + '</div>';
+          html += '<div class="fact-reason">' + escapeHtml(f.reason) + '</div>';
+          html += '<a href="' + googleUrl + '" target="_blank" rel="noopener" class="fact-link">Search on Google →</a>';
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+
+      // Feedback
+      html += '<div style="margin-top:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;">';
+      html += '<textarea id="feedback_' + ep.num + '" placeholder="Feedback: what can be improved?" style="min-height:50px;font-size:13px;"></textarea>';
+      html += '<div style="display:flex;align-items:center;gap:8px;margin-top:6px;">';
+      html += '<button class="ghost" onclick="submitEpFeedback(' + ep.num + ')" style="background:#f59e0b;color:white;border:none;font-weight:600;font-size:12px;">Submit Feedback</button>';
+      html += '<span id="fbStatus_' + ep.num + '" class="hint"></span></div></div>';
+
+      // Next episode button
+      if (isActive && ep.num < s.totalEpisodes) {
+        html += '<div style="margin-top:14px;text-align:right;">';
+        html += '<button class="primary" onclick="completeAndNext(' + ep.num + ')">Done — Start Episode ' + (ep.num + 1) + ' →</button>';
+        html += '</div>';
+      }
+    }
+    html += '</div>';
+
+    html += '</div></div>';
+    return html;
+  }
+
+  // ============================================================
+  // EPISODE INTERACTIONS
+  // ============================================================
+  function updateEpField(num, field, value) {
+    const ep = episodes[num - 1];
+    if (ep) ep[field] = value;
+  }
+
+  function toggleEpisode(num) {
+    const body = document.getElementById('ep_body_' + num);
+    if (body) body.classList.toggle('collapsed');
+  }
+
+  function selectHook(num, idx) {
+    const ep = episodes[num - 1];
+    ep.selectedHook = ep.hookOptions[idx];
+    renderTimeline();
+  }
+
+  function selectCliff(num, idx) {
+    const ep = episodes[num - 1];
+    ep.selectedCliffhanger = ep.cliffOptions[idx];
+    renderTimeline();
+  }
+
+  function selectCustomHook(num, val) {
+    if (val.trim()) episodes[num - 1].selectedHook = val.trim();
+  }
+
+  function selectCustomCliff(num, val) {
+    if (val.trim()) episodes[num - 1].selectedCliffhanger = val.trim();
+  }
+
+  function completeAndNext(num) {
+    const ep = episodes[num - 1];
+    ep.status = 'done';
+    // Sync script from textarea
+    const ta = document.getElementById('scriptText_' + num);
+    if (ta) ep.script = ta.value;
+    addEpisode();
+  }
+
+  async function copyEpScript(num) {
+    const ep = episodes[num - 1];
+    const ta = document.getElementById('scriptText_' + num);
+    const text = ta ? ta.value : ep.script;
     try {
-      await navigator.clipboard.writeText(lastScript);
-      const f = document.getElementById('copyFeedback');
-      f.textContent = 'Copied!';
-      setTimeout(() => { f.textContent = ''; }, 2000);
+      await navigator.clipboard.writeText(text);
+      alert('Script copied!');
+    } catch (e) { showError('Could not copy: ' + e.message); }
+  }
+
+  // ============================================================
+  // TOPIC SUGGESTIONS
+  // ============================================================
+
+  // Extract arc hint for a specific episode number from the series arc text
+  function getArcHintForEpisode(num) {
+    const arcField = document.getElementById('seriesArc');
+    if (!arcField) return '';
+    const arcText = arcField.value || '';
+    if (!arcText.trim()) return '';
+    // Look for lines like "Ep 3 — ..." or "Ep 3:" or "Episode 3"
+    const lines = arcText.split('\n');
+    for (const line of lines) {
+      const match = line.match(/Ep(?:isode)?\s*0*(\d+)\s*[—\-:]/i);
+      if (match && parseInt(match[1]) === num) {
+        // Return the line content after the episode marker, trimmed
+        return line.replace(/^.*?Ep(?:isode)?\s*0*\d+\s*[—\-:]\s*/i, '').trim().slice(0, 200);
+      }
+    }
+    return '';
+  }
+
+  function useArcHint(num, btn) {
+    const hint = getArcHintForEpisode(num);
+    if (!hint) return;
+    const ep = episodes[num - 1];
+    // Extract a title from the hint (text before first quote or first sentence)
+    const titleMatch = hint.match(/"([^"]+)"/);
+    if (titleMatch) {
+      ep.title = titleMatch[1];
+      const titleInput = document.getElementById('epTitle_' + num);
+      if (titleInput) titleInput.value = titleMatch[1];
+    }
+    ep.topic = hint;
+    const topicInput = document.getElementById('epTopic_' + num);
+    if (topicInput) topicInput.value = hint;
+    // Hide the hint
+    if (btn) btn.closest('.arc-hint').style.display = 'none';
+  }
+
+  async function suggestTopics(num) {
+    const s = getSetup();
+    if (!s.apiKey) { showError('Please enter your Claude API key.'); return; }
+    const ep = episodes[num - 1];
+    const chipsDiv = document.getElementById('topicChips_' + num);
+    const btn = document.getElementById('suggestBtn_' + num);
+    chipsDiv.classList.remove('hidden');
+    chipsDiv.innerHTML = '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;"><span class="spinner" style="border-color:#6366f1;border-top-color:transparent;width:14px;height:14px;"></span><span class="hint">Thinking of ideas...</span></div>';
+    btn.disabled = true;
+
+    const arcContext = s.seriesArc ? '\nSeries arc plan:\n' + s.seriesArc : '';
+    const arcHint = getArcHintForEpisode(num);
+    const prevTopics = episodes.filter(e => e.topic && e.num < num).map(e => 'Ep ' + e.num + ': ' + e.topic).join('\n');
+    const prevSuggestions = (ep._topicSuggestions || []).join(', ');
+
+    const prompt = `You are a topic strategist for Master App (Hindi edutainment, tier 2/3 India, 1-3 min Hinglish videos).
+
+Suggest 5 specific, engaging topics/angles for Episode ${num} of ${s.totalEpisodes} in the series "${s.series}" (category: ${s.category}).
+${arcContext}
+${arcHint ? 'Arc plan for this episode: ' + arcHint : ''}
+${prevTopics ? 'Previous episodes already covered:\n' + prevTopics + '\nDo NOT repeat these.' : ''}
+${prevSuggestions ? 'Already suggested (give DIFFERENT ones): ' + prevSuggestions : ''}
+
+RULES:
+- Each topic must be SPECIFIC — name a person, event, number, scheme, or fact
+- Topics should be curiosity-driven hooks, not Wikipedia titles
+- Write in Hinglish (Roman script)
+- Each topic should take a DIFFERENT angle on the episode's role in the series
+- Think about what would make a tier 2/3 India viewer STOP scrolling
+
+Output exactly 5 lines. Each line is one topic. No numbering, no bullets, no explanation.`;
+
+    try {
+      const result = await callClaude(s.apiKey, prompt);
+      const suggestions = result.trim().split('\n').filter(l => l.trim()).slice(0, 5).map(t => t.trim());
+      // Persist suggestions on the episode object so they survive re-renders
+      ep._topicSuggestions = (ep._topicSuggestions || []).concat(suggestions);
+      // Only show latest batch
+      chipsDiv.innerHTML = suggestions.map(t =>
+        '<span class="chip" onclick="pickTopic(' + num + ',this.textContent)">' + escapeHtml(t) + '</span>'
+      ).join('');
+      btn.disabled = false;
+      btn.textContent = '↻ More ideas';
     } catch (e) {
-      showError('Could not copy: ' + (e.message || e));
+      chipsDiv.innerHTML = '<span class="hint" style="color:#dc2626;">Error: ' + escapeHtml(e.message) + '</span>';
+      btn.disabled = false;
+    }
+  }
+
+  function pickTopic(num, text) {
+    const ep = episodes[num - 1];
+    ep.topic = text;
+    document.getElementById('epTopic_' + num).value = text;
+    // Don't hide chips — user might want to pick a different one
+    // Just highlight the picked one
+    const chips = document.getElementById('topicChips_' + num).querySelectorAll('.chip');
+    chips.forEach(c => {
+      c.style.background = c.textContent === text ? '#e0e7ff' : '';
+      c.style.borderColor = c.textContent === text ? '#6366f1' : '';
+      c.style.fontWeight = c.textContent === text ? '600' : '';
+    });
+  }
+
+  // ============================================================
+  // HOOK & CLIFFHANGER OPTIONS
+  // ============================================================
+  async function generateOptions(num) {
+    const s = getSetup();
+    if (!s.apiKey) { showError('Please enter your Claude API key.'); return; }
+    const ep = episodes[num - 1];
+    // Sync fields from DOM
+    ep.title = document.getElementById('epTitle_' + num)?.value || ep.title;
+    ep.topic = document.getElementById('epTopic_' + num)?.value || ep.topic;
+    if (!ep.topic && !ep.title) { alert('Please enter a topic or episode title first.'); return; }
+
+    const btn = document.getElementById('optBtn_' + num);
+    const status = document.getElementById('optStatus_' + num);
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Generating...';
+    status.textContent = 'Calling Claude...';
+
+    const ctx = getCategoryContext(s.category);
+    const arcLine = s.seriesArc.split('\n').find(l => l.toLowerCase().includes('ep ' + num)) || '';
+    const prevScripts = episodes.filter(e => e.script && e.num < num).map(e => 'Ep ' + e.num + ': ' + e.script.slice(0, 150) + '...').join('\n\n');
+
+    const prompt = `You are a Hindi edutainment script strategist for Master App (tier 2/3 India, 1-3 min Hinglish videos).
+
+Series: "${s.series}" | Category: ${s.category} | Episode ${num} of ${s.totalEpisodes}
+Episode topic: ${ep.topic || ep.title}
+${arcLine ? 'Arc role for this episode: ' + arcLine : ''}
+${ep.prevCliffhanger ? 'Previous episode ended with cliffhanger: "' + ep.prevCliffhanger + '"' : ''}
+${prevScripts ? 'Previous episode summaries:\n' + prevScripts : ''}
+
+Generate EXACTLY 3 hook options and EXACTLY 3 cliffhanger options for this episode.
+
+HOOKS must be:
+- First-line openers — specific, surprising, with a named thing (number, person, app, scheme)
+- Each hook should take a DIFFERENT angle on the same topic
+- NO generic openers ("Aaj hum baat karenge...", "Kya aap jaante hain...")
+
+CLIFFHANGERS must be:
+- Specific teases for what comes next — make the viewer NEED the next episode
+- Each should tease a different aspect of the upcoming content
+- Name something specific that the next episode will reveal
+
+Output in this EXACT format (no other text):
+HOOK 1: [hook text]
+HOOK 2: [hook text]
+HOOK 3: [hook text]
+CLIFF 1: [cliffhanger text]
+CLIFF 2: [cliffhanger text]
+CLIFF 3: [cliffhanger text]`;
+
+    try {
+      const result = await callClaude(s.apiKey, prompt);
+      const lines = result.trim().split('\n').filter(l => l.trim());
+      ep.hookOptions = lines.filter(l => /^HOOK\s*\d/i.test(l)).map(l => l.replace(/^HOOK\s*\d\s*:\s*/i, '').trim());
+      ep.cliffOptions = lines.filter(l => /^CLIFF\s*\d/i.test(l)).map(l => l.replace(/^CLIFF\s*\d\s*:\s*/i, '').trim());
+      if (!ep.hookOptions.length) ep.hookOptions = ['Could not parse hooks — write your own below'];
+      if (!ep.cliffOptions.length) ep.cliffOptions = ['Could not parse cliffhangers — write your own below'];
+      renderTimeline();
+    } catch (e) {
+      status.textContent = 'Error: ' + e.message;
+      status.style.color = '#dc2626';
+      btn.disabled = false;
+      btn.innerHTML = 'Generate hook & cliffhanger options';
     }
   }
 
   // ============================================================
-  // FEEDBACK
+  // GENERATE EPISODE SCRIPT
   // ============================================================
-  let lastGenerationMeta = {};
+  async function generateEpisodeScript(num) {
+    const s = getSetup();
+    if (!s.apiKey) { showError('Please enter your Claude API key.'); return; }
+    const ep = episodes[num - 1];
+    ep.title = document.getElementById('epTitle_' + num)?.value || ep.title;
+    ep.topic = document.getElementById('epTopic_' + num)?.value || ep.topic;
+    if (!ep.topic && !ep.title) { alert('Please enter a topic or episode title first.'); return; }
 
-  function resetFeedback() {
-    document.getElementById('feedbackText').value = '';
-    document.getElementById('feedbackStatus').textContent = '';
-    document.getElementById('feedbackSection').style.opacity = '1';
+    const btn = document.getElementById('genBtn_' + num);
+    const status = document.getElementById('genStatus_' + num);
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Generating...';
+    status.textContent = 'Sending to Claude Sonnet 4...';
+
+    const seriesArc = s.seriesArc || getDefaultArc(s.totalEpisodes);
+    let extra = s.extraInstructions || '';
+    if (ep.selectedHook) extra += '\n\nUSE THIS EXACT HOOK as the opening line of the script (you may polish slightly but keep the core): "' + ep.selectedHook + '"';
+    if (ep.selectedCliffhanger) extra += '\n\nUSE THIS EXACT CLIFFHANGER as the end hook / CTA tease of the script: "' + ep.selectedCliffhanger + '"';
+    if (ep.prevCliffhanger) extra += '\n\nThe PREVIOUS episode ended with this cliffhanger: "' + ep.prevCliffhanger + '". This episode must DELIVER on that tease — address it in the first 2-3 lines after the hook.';
+
+    const prevScriptSummaries = episodes.filter(e => e.script && e.num < num).map(e => 'Ep ' + e.num + ' (' + (e.topic || e.title) + '): ' + e.script.slice(0, 200) + '...').join('\n\n');
+    if (prevScriptSummaries) extra += '\n\nPREVIOUS EPISODES (do not repeat content):\n' + prevScriptSummaries;
+
+    try {
+      const prompt = buildPrompt(s.category, ep.topic, s.series, ep.title, s.creator, s.duration, s.totalEpisodes, num, seriesArc, extra);
+      const scriptText = await callClaude(s.apiKey, prompt);
+      ep.script = scriptText;
+      lastScript = scriptText;
+
+      addToHistory(ep.topic || ep.title, s.category, scriptText, s.series, num, s.totalEpisodes);
+      logGeneration(s.category, s.series, num, ep.topic || ep.title, scriptText.length);
+      renderTimeline();
+    } catch (e) {
+      status.textContent = 'Error: ' + e.message;
+      status.style.color = '#dc2626';
+      btn.disabled = false;
+      btn.textContent = 'Generate Script for Episode ' + num;
+    }
   }
 
-  function submitFeedback() {
-    const feedbackText = document.getElementById('feedbackText').value.trim();
-    if (!feedbackText) { alert('Please type some feedback first.'); return; }
-    const user = ensureUserName();
-    const status = document.getElementById('feedbackStatus');
-    const btn = document.getElementById('feedbackBtn');
+  // ============================================================
+  // REWRITE SELECTION
+  // ============================================================
 
+  // Quick rewrite: uses a preset instruction on the selected text (or full script if nothing selected)
+  async function quickRewrite(num, instruction) {
+    const ta = document.getElementById('scriptText_' + num);
+    const selStart = ta.selectionStart;
+    const selEnd = ta.selectionEnd;
+    const hasSelection = selStart !== selEnd && ta.value.substring(selStart, selEnd).trim();
+
+    if (!hasSelection) {
+      // If nothing selected, auto-select the relevant section based on the instruction
+      const statusEl = document.getElementById('rewriteStatus_' + num);
+      statusEl.textContent = 'Tip: Select the specific text you want to rewrite for best results. Rewriting entire script...';
+      statusEl.style.color = '#d97706';
+      // Select entire script
+      ta.selectionStart = 0;
+      ta.selectionEnd = ta.value.length;
+    }
+
+    // Set the instruction and trigger rewrite
+    document.getElementById('rewritePrompt_' + num).value = instruction;
+    await rewriteSelection(num);
+  }
+
+  async function rewriteSelection(num) {
+    const s = getSetup();
+    if (!s.apiKey) { showError('Please enter your Claude API key.'); return; }
+    const ta = document.getElementById('scriptText_' + num);
+    const promptInput = document.getElementById('rewritePrompt_' + num);
+    const statusEl = document.getElementById('rewriteStatus_' + num);
+    const instruction = promptInput.value.trim();
+    if (!instruction) { alert('Please describe what to change.'); return; }
+
+    const selStart = ta.selectionStart;
+    const selEnd = ta.selectionEnd;
+    const fullScript = ta.value;
+    let selectedText = fullScript.substring(selStart, selEnd);
+    if (!selectedText.trim()) {
+      statusEl.textContent = '⚠ Select the text you want to rewrite first, then click Rewrite.';
+      statusEl.style.color = '#d97706';
+      return;
+    }
+
+    // Save undo state
+    const ep = episodes[num - 1];
+    if (!ep._undoStack) ep._undoStack = [];
+    ep._undoStack.push(fullScript);
+    if (ep._undoStack.length > 10) ep._undoStack.shift(); // max 10 undos
+
+    promptInput.disabled = true;
+    const savedInstruction = promptInput.value;
+    promptInput.value = '';
+    statusEl.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;"><span class="spinner" style="border-color:#6366f1;border-top-color:transparent;width:12px;height:12px;"></span> Rewriting ' + selectedText.split(/\s+/).length + ' words...</span>';
+    statusEl.style.color = '#6366f1';
+
+    const prompt = `You are rewriting a portion of a Hindi Hinglish edutainment script for Master App (tier 2/3 India, 1-3 min videos).
+
+FULL SCRIPT (for context):
+${fullScript}
+
+SELECTED PORTION TO REWRITE:
+"${selectedText}"
+
+INSTRUCTION: ${instruction}
+
+RULES:
+- Rewrite ONLY the selected portion
+- Keep approximately the same length (±20%)
+- Match the voice, tone, and Hinglish style of the surrounding script
+- Maintain any [B-Roll: ...] tags if present, or add them if the instruction mentions B-Roll
+- Output ONLY the replacement text — no explanations, no quotes, no preamble`;
+
+    try {
+      const result = await callClaude(s.apiKey, prompt);
+      const rewritten = result.trim();
+      const newScript = fullScript.substring(0, selStart) + rewritten + fullScript.substring(selEnd);
+      ta.value = newScript;
+      ep.script = newScript;
+      lastScript = newScript;
+      promptInput.value = '';
+      promptInput.disabled = false;
+
+      // Show success with word count comparison
+      const oldWords = selectedText.split(/\s+/).length;
+      const newWords = rewritten.split(/\s+/).length;
+      statusEl.textContent = '✓ Rewritten! (' + oldWords + ' → ' + newWords + ' words)';
+      statusEl.style.color = '#059669';
+
+      // Highlight the rewritten portion briefly
+      ta.focus();
+      ta.selectionStart = selStart;
+      ta.selectionEnd = selStart + rewritten.length;
+
+      // Show undo button
+      const undoBtn = document.getElementById('undoBtn_' + num);
+      if (undoBtn) undoBtn.style.display = 'inline-flex';
+    } catch (e) {
+      promptInput.value = savedInstruction;
+      promptInput.disabled = false;
+      statusEl.textContent = '✗ Rewrite failed: ' + e.message;
+      statusEl.style.color = '#dc2626';
+      // Remove the undo entry since rewrite failed
+      ep._undoStack.pop();
+    }
+  }
+
+  function undoRewrite(num) {
+    const ep = episodes[num - 1];
+    if (!ep._undoStack || !ep._undoStack.length) return;
+    const prevScript = ep._undoStack.pop();
+    const ta = document.getElementById('scriptText_' + num);
+    ta.value = prevScript;
+    ep.script = prevScript;
+    lastScript = prevScript;
+    const statusEl = document.getElementById('rewriteStatus_' + num);
+    statusEl.textContent = '↩ Reverted to previous version' + (ep._undoStack.length ? ' (' + ep._undoStack.length + ' more undo' + (ep._undoStack.length > 1 ? 's' : '') + ')' : '');
+    statusEl.style.color = '#6b7280';
+    // Hide undo button if no more undo states
+    if (!ep._undoStack.length) {
+      const undoBtn = document.getElementById('undoBtn_' + num);
+      if (undoBtn) undoBtn.style.display = 'none';
+    }
+  }
+
+  // ============================================================
+  // FACT VERIFICATION
+  // ============================================================
+
+  function factCheckGoogle(num) {
+    const ta = document.getElementById('scriptText_' + num);
+    const statusEl = document.getElementById('factStatus_' + num);
+    const selStart = ta.selectionStart;
+    const selEnd = ta.selectionEnd;
+    let selectedText = ta.value.substring(selStart, selEnd).trim();
+
+    if (!selectedText) {
+      statusEl.textContent = 'Select text in the script first, then click to Google it.';
+      statusEl.style.color = '#d97706';
+      return;
+    }
+
+    // Trim to a reasonable search query length
+    if (selectedText.length > 200) selectedText = selectedText.slice(0, 200);
+    const url = 'https://www.google.com/search?q=' + encodeURIComponent(selectedText);
+    window.open(url, '_blank', 'noopener');
+    statusEl.textContent = 'Opened Google search in new tab.';
+    statusEl.style.color = '#059669';
+  }
+
+  async function flagFacts(num) {
+    const s = getSetup();
+    if (!s.apiKey) { showError('Please enter your Claude API key.'); return; }
+    const ep = episodes[num - 1];
+    const ta = document.getElementById('scriptText_' + num);
+    const script = ta.value;
+    if (!script.trim()) return;
+
+    const btn = document.getElementById('flagBtn_' + num);
+    const statusEl = document.getElementById('factStatus_' + num);
     btn.disabled = true;
-    status.textContent = 'Submitting...';
-    status.style.color = '#6b7280';
+    btn.textContent = '⏳ Scanning...';
+    statusEl.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;"><span class="spinner" style="border-color:#f59e0b;border-top-color:transparent;width:12px;height:12px;"></span> Claude is checking facts...</span>';
+    statusEl.style.color = '#92400e';
+
+    const prompt = `You are a fact-checker for Hindi edutainment scripts (Master App, tier 2/3 India).
+
+SCRIPT TO VERIFY:
+${script}
+
+TASK: Identify ALL specific factual claims in this script that could be wrong — numbers, dates, names, percentages, amounts, scheme details, historical events, app features, government policies, etc.
+
+For each claim, output one line in this EXACT format:
+CLAIM: [the specific claim from the script] ||| REASON: [why this needs verification — what could be wrong]
+
+RULES:
+- Only flag SPECIFIC verifiable facts, NOT opinions or generic statements
+- Focus on: numbers/statistics, dates/years, names of people/schemes/apps, money amounts, historical facts, policy details
+- If a fact is commonly known and almost certainly correct, skip it
+- If the script has no specific factual claims, output: NO_CLAIMS_FOUND
+- Output ONLY the CLAIM/REASON lines, nothing else
+
+Be thorough — even one wrong fact destroys creator credibility.`;
+
+    try {
+      const result = await callClaude(s.apiKey, prompt);
+      if (result.trim() === 'NO_CLAIMS_FOUND') {
+        ep._factFlags = [];
+        statusEl.textContent = '✓ No specific factual claims found to verify.';
+        statusEl.style.color = '#059669';
+        btn.disabled = false;
+        btn.textContent = '⚠ Flag uncertain facts';
+        return;
+      }
+
+      const flags = result.trim().split('\n')
+        .filter(l => l.includes('CLAIM:') && l.includes('REASON:'))
+        .map(l => {
+          const parts = l.split('|||');
+          return {
+            claim: (parts[0] || '').replace(/^CLAIM:\s*/i, '').trim(),
+            reason: (parts[1] || '').replace(/^REASON:\s*/i, '').trim()
+          };
+        })
+        .filter(f => f.claim);
+
+      ep._factFlags = flags;
+
+      if (flags.length === 0) {
+        statusEl.textContent = '✓ Script looks clean — no uncertain claims detected.';
+        statusEl.style.color = '#059669';
+      } else {
+        // Insert [⚠ VERIFY] markers inline in the script
+        let markedScript = script;
+        let insertions = 0;
+        for (const f of flags) {
+          // Find the claim text (or a close match) in the script and add a marker after it
+          const idx = markedScript.indexOf(f.claim);
+          if (idx !== -1) {
+            const marker = ' [⚠ VERIFY]';
+            markedScript = markedScript.slice(0, idx + f.claim.length) + marker + markedScript.slice(idx + f.claim.length);
+            insertions++;
+          }
+        }
+        if (insertions > 0) {
+          // Save undo state before modifying
+          if (!ep._undoStack) ep._undoStack = [];
+          ep._undoStack.push(script);
+          ta.value = markedScript;
+          ep.script = markedScript;
+        }
+
+        statusEl.textContent = '⚠ Found ' + flags.length + ' claim' + (flags.length > 1 ? 's' : '') + ' to verify' + (insertions > 0 ? ' — [⚠ VERIFY] tags added inline' : '') + '. Click Google links below to check.';
+        statusEl.style.color = '#d97706';
+
+        // Re-render to show the fact panel
+        renderTimeline();
+      }
+    } catch (e) {
+      statusEl.textContent = '✗ Error: ' + e.message;
+      statusEl.style.color = '#dc2626';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '⚠ Flag uncertain facts';
+    }
+  }
+
+  function clearFlags(num) {
+    const ep = episodes[num - 1];
+    ep._factFlags = [];
+    // Remove [⚠ VERIFY] markers from script
+    const ta = document.getElementById('scriptText_' + num);
+    if (ta) {
+      const cleaned = ta.value.replace(/ \[⚠ VERIFY\]/g, '');
+      ta.value = cleaned;
+      ep.script = cleaned;
+    }
+    renderTimeline();
+  }
+
+  // ============================================================
+  // PER-EPISODE FEEDBACK
+  // ============================================================
+  function submitEpFeedback(num) {
+    const ep = episodes[num - 1];
+    const s = getSetup();
+    const fb = document.getElementById('feedback_' + num);
+    const text = fb.value.trim();
+    if (!text) { alert('Please type some feedback first.'); return; }
+    const user = ensureUserName();
+    const statusEl = document.getElementById('fbStatus_' + num);
 
     try {
       fetch(LOG_URL, {
@@ -1196,24 +1852,19 @@ Do NOT add any meta-commentary before or after the script.`;
         body: JSON.stringify({
           type: 'feedback',
           user: user,
-          feedback: feedbackText,
-          category: lastGenerationMeta.category || '',
-          series: lastGenerationMeta.series || '',
-          episodeNum: lastGenerationMeta.episodeNum || '',
-          topic: lastGenerationMeta.topic || '',
-          scriptSnippet: (lastScript || '').slice(0, 200),
+          feedback: text,
+          category: s.category,
+          series: s.series,
+          episodeNum: num,
+          topic: ep.topic || ep.title,
+          scriptSnippet: (ep.script || '').slice(0, 200),
         })
       });
-      status.textContent = 'Feedback submitted! Thank you.';
-      status.style.color = '#059669';
-      btn.disabled = false;
-      setTimeout(() => {
-        document.getElementById('feedbackSection').style.opacity = '0.5';
-      }, 1500);
+      statusEl.textContent = 'Submitted!';
+      statusEl.style.color = '#059669';
     } catch (e) {
-      status.textContent = 'Failed to submit. Try again.';
-      status.style.color = '#dc2626';
-      btn.disabled = false;
+      statusEl.textContent = 'Failed';
+      statusEl.style.color = '#dc2626';
     }
   }
 
@@ -1297,12 +1948,41 @@ Do NOT add any meta-commentary before or after the script.`;
   function viewHistoryEntry(idx) {
     const entry = generationHistory[idx];
     if (!entry) return;
-    document.getElementById('resultCard').classList.remove('hidden');
-    document.getElementById('resultCategory').textContent = entry.category;
-    document.getElementById('scriptOutput').textContent = entry.script;
-    document.getElementById('resultTiming').textContent = 'From history';
     lastScript = entry.script;
-    document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Show in a modal overlay
+    let modal = document.getElementById('historyModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'historyModal';
+      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;';
+      modal.innerHTML = `
+        <div style="background:white;border-radius:12px;max-width:750px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #e5e7eb;">
+            <div>
+              <span id="modalTitle" style="font-weight:700;font-size:16px;"></span>
+              <span id="modalMeta" class="hint" style="display:block;margin-top:2px;"></span>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="ghost" onclick="copyModalScript()">Copy</button>
+              <button class="ghost" onclick="document.getElementById('historyModal').style.display='none'">Close</button>
+            </div>
+          </div>
+          <pre id="modalScript" style="padding:20px;margin:0;overflow-y:auto;white-space:pre-wrap;font-size:14px;line-height:1.7;font-family:inherit;"></pre>
+        </div>`;
+      document.body.appendChild(modal);
+      modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+    }
+
+    document.getElementById('modalTitle').textContent = (entry.series ? entry.series + ' — ' : '') + 'Episode ' + (entry.episodeNum || '?');
+    document.getElementById('modalMeta').textContent = entry.category + ' • ' + entry.topic + ' • ' + new Date(entry.timestamp).toLocaleString();
+    document.getElementById('modalScript').textContent = entry.script;
+    modal.style.display = 'flex';
+  }
+
+  async function copyModalScript() {
+    const text = document.getElementById('modalScript').textContent;
+    try { await navigator.clipboard.writeText(text); alert('Script copied!'); } catch (e) { alert('Copy failed'); }
   }
 
   function clearHistory() {
@@ -1361,7 +2041,7 @@ Do NOT add any meta-commentary before or after the script.`;
   // Restore saved API key
   (function init() {
     // Hardcoded default key (split to avoid GitHub secret scanning)
-    const _k = ['sk-ant-api03','LHB4ZRv46tfmnYyU65Ye9_BoAdGeAs7SIsTFU','icZR2ciUCeDDs16PcSsvfc7evlpsOmrAEVwhJ9Qi1giR84SQ','7lLclwAA'];
+    const _k = ['sk-ant-api03','REPLACE','WITH','YOUR-KEY-CHUNKS'];
     const DEFAULT_KEY = _k.join('-');
 
     // URL hash overrides hardcoded key: generator.html#key=sk-ant-xxx
@@ -1537,6 +2217,16 @@ Output ONLY the episode template. No preamble, no "Here's the template", no mark
   }
 
   // Show/hide series arc section when series name is filled
+  // Show/hide Sarkari notice when category changes
+  document.getElementById('category').addEventListener('change', function () {
+    const notice = document.getElementById('sarkariNotice');
+    if (this.value === 'Sarkari Services') {
+      notice.classList.remove('hidden');
+    } else {
+      notice.classList.add('hidden');
+    }
+  });
+
   document.getElementById('series').addEventListener('input', function () {
     const section = document.getElementById('seriesArcSection');
     if (this.value.trim()) {
@@ -1546,11 +2236,18 @@ Output ONLY the episode template. No preamble, no "Here's the template", no mark
     }
   });
 
-  // Ctrl/Cmd+Enter to generate
+  // Ctrl/Cmd+Enter to generate script for current active episode
   document.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
       e.preventDefault();
-      generateScript();
+      // Find the active (last non-done) episode
+      const active = episodes.find(ep => ep.status !== 'done');
+      if (active && !active.script) {
+        generateEpisodeScript(active.num);
+      } else if (episodes.length === 0) {
+        // No episodes yet — start the timeline
+        startTimeline();
+      }
     }
   });
   </script>
