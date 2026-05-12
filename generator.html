@@ -188,11 +188,11 @@
     /* Option cards */
     .opt-group { margin: 12px 0; overflow: hidden; }
     .opt-group label.opt-label { font-weight: 700; font-size: 13px; margin-bottom: 8px; color: #374151; }
-    .opt-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; font-size: 13px; line-height: 1.55; overflow: hidden; width: 100%; box-sizing: border-box; }
+    .opt-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; font-size: 13px; line-height: 1.55; box-sizing: border-box; }
     .opt-item:hover { border-color: #6366f1; background: #f5f3ff; }
     .opt-item.selected { border-color: #6366f1; background: #eef2ff; }
-    .opt-item input[type="radio"] { margin-top: 3px; flex-shrink: 0; }
-    .opt-item span { flex: 1; min-width: 0; word-wrap: break-word; overflow-wrap: break-word; }
+    .opt-item input[type="radio"] { margin-top: 3px; flex-shrink: 0; width: auto; }
+    .opt-item span { word-wrap: break-word; overflow-wrap: break-word; }
 
     /* Topic chips */
     .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
@@ -222,7 +222,7 @@
     .fact-link:hover { text-decoration: underline; }
 
     /* Script editable area */
-    .script-edit { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px 24px; font-size: 15px; line-height: 1.75; white-space: pre-wrap; font-family: inherit; color: #1f2937; min-height: 200px; width: 100%; resize: vertical; }
+    .script-edit { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px 24px; font-size: 15px; line-height: 1.75; white-space: pre-wrap; font-family: inherit; color: #1f2937; min-height: 500px; width: 100%; resize: vertical; }
 
     @media (max-width: 720px) {
       .row-3, .row-2 { grid-template-columns: 1fr; }
@@ -314,7 +314,7 @@
             <span style="font-weight:700; font-size:13px; color:#4338ca;">✦ AI Arc Generator</span>
             <span class="hint" style="margin:0;">Describe what you want the series to cover — Claude will generate the episode arc plan.</span>
           </div>
-          <textarea id="seriesDescription" placeholder="Describe what the series should cover. Example: 'Aditya Birla Empire — rags to riches journey, downtime in life, how they bought RCB, proud moments. Keep it dramatic.'" style="min-height:80px; font-size:13px;"></textarea>
+          <textarea id="seriesDescription" placeholder="Enter summary of the series you want to generate and I will create templates for each episode" style="min-height:80px; font-size:13px;"></textarea>
           <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
             <button class="ai-gen" type="button" id="aiArcBtn" onclick="generateArcWithAI()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
@@ -324,7 +324,7 @@
           </div>
         </div>
         <label>Episode arc plan
-          <textarea id="seriesArc" placeholder="Generated arc will appear here. You can also type/edit manually." style="min-height:140px; font-size:13px;"></textarea>
+          <textarea id="seriesArc" placeholder="If you do not want to generate through AI, please write templates for each episode or generate default that I have, then generate episode" style="min-height:140px; font-size:13px;"></textarea>
         </label>
         <div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
           <button class="ghost" type="button" onclick="loadDefaultArc()">Load default arc template</button>
@@ -375,7 +375,6 @@
     'banking & finance': 'finance',
     'banking and finance': 'finance',
     'secrets of india': 'secrets_of_india',
-
 
     'ai se editing': 'ai_editing',
     'astrology & kundli': 'astrology',
@@ -506,7 +505,6 @@
         'Replacing vivid specifics with generic reverence ("India is a great country")',
       ],
     },
-
 
     ai_editing: {
       label: 'Hindi AI Se Editing / creator-tools short-form (1-3 min)',
@@ -1131,8 +1129,8 @@ Do NOT add any meta-commentary before or after the script.`}`;
   // ============================================================
   function startTimeline() {
     const s = getSetup();
-    if (!s.series) { alert('Please enter a series name first.'); return; }
     if (!s.apiKey) { showError('Please enter your Claude API key.'); return; }
+    if (!s.series) { alert('Please enter a series name.'); return; }
     ensureUserName();
     if (!episodes.length) addEpisode();
   }
@@ -1192,7 +1190,7 @@ Do NOT add any meta-commentary before or after the script.`}`;
     }
 
     // Topic input + suggest
-    html += '<div class="step-label">Step 1 — Episode details</div>';
+    html += '<div class="step-label">Step 1 — Episode details <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#9ca3af;">(optional)</span></div>';
     html += '<div class="row row-2"><div>';
     html += '<label>Episode title<input type="text" id="epTitle_' + ep.num + '" value="' + escapeHtml(ep.title) + '" placeholder="e.g. Draupadi ka Cheerharan" onchange="updateEpField(' + ep.num + ',\'title\',this.value)"></label>';
     html += '</div><div>';
@@ -1224,13 +1222,13 @@ Do NOT add any meta-commentary before or after the script.`}`;
       html += '</div>';
     }
 
-    // Step 2: Hook & Cliffhanger options
-    html += '<div style="margin-top:16px;"><div class="step-label">Step 2 — Hook & cliffhanger options</div>';
+    // Step 2: Hook & Cliffhanger options (optional)
+    html += '<div style="margin-top:16px;"><div class="step-label">Step 2 — Hook & cliffhanger options <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#9ca3af;">(optional)</span></div>';
     if (!ep.hookOptions.length) {
       html += '<button class="ai-gen" onclick="generateOptions(' + ep.num + ')" id="optBtn_' + ep.num + '" style="margin-bottom:8px;">';
       html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>';
       html += ' Generate hook & cliffhanger options</button>';
-      html += '<span id="optStatus_' + ep.num + '" class="hint"></span>';
+      html += '<span id="optStatus_' + ep.num + '" class="hint" style="margin-left:8px;">Skip this and go straight to Generate Script ↓</span>';
     } else {
       // Hook options
       html += '<div class="opt-group"><label class="opt-label">Select a hook:</label>';
@@ -1498,7 +1496,6 @@ Output exactly 5 lines. Each line is one topic. No numbering, no bullets, no exp
     // Sync fields from DOM
     ep.title = document.getElementById('epTitle_' + num)?.value || ep.title;
     ep.topic = document.getElementById('epTopic_' + num)?.value || ep.topic;
-    if (!ep.topic && !ep.title) { alert('Please enter a topic or episode title first.'); return; }
 
     const btn = document.getElementById('optBtn_' + num);
     const status = document.getElementById('optStatus_' + num);
@@ -1507,13 +1504,15 @@ Output exactly 5 lines. Each line is one topic. No numbering, no bullets, no exp
     status.textContent = 'Calling Claude...';
 
     const ctx = getCategoryContext(s.category);
-    const arcLine = s.seriesArc.split('\n').find(l => l.toLowerCase().includes('ep ' + num)) || '';
+    const arcLine = (s.seriesArc || '').split('\n').find(l => l.toLowerCase().includes('ep ' + num)) || '';
     const prevScripts = episodes.filter(e => e.script && e.num < num).map(e => 'Ep ' + e.num + ': ' + e.script.slice(0, 150) + '...').join('\n\n');
+    const hasTopic = ep.topic || ep.title;
+    const hasSeries = s.series;
 
     const prompt = `You are a Hindi edutainment script strategist for Master App (tier 2/3 India, 1-3 min Hinglish videos).
 
-Series: "${s.series}" | Category: ${s.category} | Episode ${num} of ${s.totalEpisodes}
-Episode topic: ${ep.topic || ep.title}
+Category: ${s.category}${hasSeries ? ' | Series: "' + s.series + '"' : ''} | Episode ${num} of ${s.totalEpisodes}
+${hasTopic ? 'Episode topic: ' + (ep.topic || ep.title) : 'No specific topic given — generate hooks and cliffhangers based on the category' + (hasSeries ? ' and series' : '') + '. Each hook should explore a DIFFERENT possible angle/topic for this episode.'}
 ${arcLine ? 'Arc role for this episode: ' + arcLine : ''}
 ${ep.prevCliffhanger ? 'Previous episode ended with cliffhanger: "' + ep.prevCliffhanger + '"' : ''}
 ${prevScripts ? 'Previous episode summaries:\n' + prevScripts : ''}
@@ -1521,8 +1520,8 @@ ${prevScripts ? 'Previous episode summaries:\n' + prevScripts : ''}
 Generate EXACTLY 3 hook options and EXACTLY 3 cliffhanger options for this episode.
 
 HOOKS must be:
-- First-line openers — specific, surprising, with a named thing (number, person, app, scheme)
-- Each hook should take a DIFFERENT angle on the same topic
+- First-line openers in Hinglish — specific, surprising, with a named thing (number, person, app, scheme)
+- Each hook should take a DIFFERENT angle${hasTopic ? ' on the same topic' : ' — each suggesting a completely different topic/direction for this episode'}
 - NO generic openers ("Aaj hum baat karenge...", "Kya aap jaante hain...")
 
 CLIFFHANGERS must be:
@@ -1530,21 +1529,78 @@ CLIFFHANGERS must be:
 - Each should tease a different aspect of the upcoming content
 - Name something specific that the next episode will reveal
 
-Output in this EXACT format (no other text):
-HOOK 1: [hook text]
-HOOK 2: [hook text]
-HOOK 3: [hook text]
-CLIFF 1: [cliffhanger text]
-CLIFF 2: [cliffhanger text]
-CLIFF 3: [cliffhanger text]`;
+CRITICAL: Output in this EXACT format — one per line, no extra text, no blank lines:
+HOOK 1: [hook text in Hinglish]
+HOOK 2: [hook text in Hinglish]
+HOOK 3: [hook text in Hinglish]
+CLIFF 1: [cliffhanger text in Hinglish]
+CLIFF 2: [cliffhanger text in Hinglish]
+CLIFF 3: [cliffhanger text in Hinglish]`;
 
     try {
       const result = await callClaude(s.apiKey, prompt);
-      const lines = result.trim().split('\n').filter(l => l.trim());
-      ep.hookOptions = lines.filter(l => /^HOOK\s*\d/i.test(l)).map(l => l.replace(/^HOOK\s*\d\s*:\s*/i, '').trim());
-      ep.cliffOptions = lines.filter(l => /^CLIFF\s*\d/i.test(l)).map(l => l.replace(/^CLIFF\s*\d\s*:\s*/i, '').trim());
-      if (!ep.hookOptions.length) ep.hookOptions = ['Could not parse hooks — write your own below'];
-      if (!ep.cliffOptions.length) ep.cliffOptions = ['Could not parse cliffhangers — write your own below'];
+      console.log('Hook/Cliff raw response:', result);
+
+      // Clean up markdown formatting Claude sometimes adds
+      const cleaned = result
+        .replace(/\*\*/g, '')
+        .replace(/```[^`]*```/gs, '')
+        .replace(/^\s*[-•]\s*/gm, '')  // strip bullet points
+        .trim();
+      const lines = cleaned.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      console.log('Parsed lines:', lines);
+
+      // Try standard format: HOOK 1: text / CLIFF 1: text
+      ep.hookOptions = [];
+      ep.cliffOptions = [];
+
+      for (const line of lines) {
+        // Match HOOK variations
+        const hookMatch = line.match(/^(?:HOOK|Hook)\s*\d\s*[:\-—\.]\s*(.+)/i);
+        if (hookMatch && hookMatch[1].trim()) {
+          ep.hookOptions.push(hookMatch[1].trim().replace(/^\[|\]$/g, ''));  // strip [] brackets
+          continue;
+        }
+        // Match CLIFF/CLIFFHANGER variations
+        const cliffMatch = line.match(/^(?:CLIFF(?:HANGER)?|Cliffhanger)\s*\d\s*[:\-—\.]\s*(.+)/i);
+        if (cliffMatch && cliffMatch[1].trim()) {
+          ep.cliffOptions.push(cliffMatch[1].trim().replace(/^\[|\]$/g, ''));
+          continue;
+        }
+      }
+
+      // Fallback 1: numbered lines like "1. text" or "1) text"
+      if (!ep.hookOptions.length && !ep.cliffOptions.length) {
+        const numbered = lines.filter(l => /^\d[.)\s]/.test(l)).map(l => l.replace(/^\d[.)\s]+/, '').trim()).filter(l => l.length > 10);
+        if (numbered.length >= 6) {
+          ep.hookOptions = numbered.slice(0, 3);
+          ep.cliffOptions = numbered.slice(3, 6);
+        } else if (numbered.length >= 2) {
+          ep.hookOptions = numbered.slice(0, Math.ceil(numbered.length / 2));
+          ep.cliffOptions = numbered.slice(Math.ceil(numbered.length / 2));
+        }
+      }
+
+      // Fallback 2: just split meaningful lines in half
+      if (!ep.hookOptions.length && !ep.cliffOptions.length) {
+        const meaningful = lines.filter(l => l.length > 15 && !/^(hook|cliff|select|option|here|note)/i.test(l));
+        if (meaningful.length >= 4) {
+          const half = Math.ceil(meaningful.length / 2);
+          ep.hookOptions = meaningful.slice(0, Math.min(half, 3));
+          ep.cliffOptions = meaningful.slice(half, half + 3);
+        }
+      }
+
+      // Fallback 3: show raw response as a single option
+      if (!ep.hookOptions.length) {
+        ep.hookOptions = ['Could not auto-parse hooks. Raw response — pick or rewrite:\n' + cleaned.slice(0, 300)];
+      }
+      if (!ep.cliffOptions.length) {
+        ep.cliffOptions = ['Could not auto-parse cliffhangers. Write your own below.'];
+      }
+
+      console.log('Final hookOptions:', ep.hookOptions);
+      console.log('Final cliffOptions:', ep.cliffOptions);
       renderTimeline();
     } catch (e) {
       status.textContent = 'Error: ' + e.message;
@@ -1563,7 +1619,6 @@ CLIFF 3: [cliffhanger text]`;
     const ep = episodes[num - 1];
     ep.title = document.getElementById('epTitle_' + num)?.value || ep.title;
     ep.topic = document.getElementById('epTopic_' + num)?.value || ep.topic;
-    if (!ep.topic && !ep.title) { alert('Please enter a topic or episode title first.'); return; }
 
     const btn = document.getElementById('genBtn_' + num);
     const status = document.getElementById('genStatus_' + num);
@@ -1576,12 +1631,14 @@ CLIFF 3: [cliffhanger text]`;
     if (ep.selectedHook) extra += '\n\nUSE THIS EXACT HOOK as the opening line of the script (you may polish slightly but keep the core): "' + ep.selectedHook + '"';
     if (ep.selectedCliffhanger) extra += '\n\nUSE THIS EXACT CLIFFHANGER as the end hook / CTA tease of the script: "' + ep.selectedCliffhanger + '"';
     if (ep.prevCliffhanger) extra += '\n\nThe PREVIOUS episode ended with this cliffhanger: "' + ep.prevCliffhanger + '". This episode must DELIVER on that tease — address it in the first 2-3 lines after the hook.';
+    if (!ep.topic && !ep.title) extra += '\n\nNo specific topic was provided for this episode. Pick the best topic for Episode ' + num + ' of ' + s.totalEpisodes + ' based on the series name, category, and arc plan. Make it specific and engaging.';
 
     const prevScriptSummaries = episodes.filter(e => e.script && e.num < num).map(e => 'Ep ' + e.num + ' (' + (e.topic || e.title) + '): ' + e.script.slice(0, 200) + '...').join('\n\n');
     if (prevScriptSummaries) extra += '\n\nPREVIOUS EPISODES (do not repeat content):\n' + prevScriptSummaries;
 
     try {
-      const prompt = buildPrompt(s.category, ep.topic, s.series, ep.title, s.creator, s.duration, s.totalEpisodes, num, seriesArc, extra);
+      const topicForPrompt = ep.topic || ep.title || (s.series + ' — Episode ' + num);
+      const prompt = buildPrompt(s.category, topicForPrompt, s.series, ep.title || ('Episode ' + num), s.creator, s.duration, s.totalEpisodes, num, seriesArc, extra);
       const scriptText = await callClaude(s.apiKey, prompt);
       ep.script = scriptText;
       lastScript = scriptText;
@@ -1899,7 +1956,8 @@ Be thorough — even one wrong fact destroys creator credibility.`;
   const LOG_URL = 'https://script.google.com/macros/s/AKfycbyVJ0x_I5O65JK1BsuGe0VwJYoSLruvK_bHaZCGCxqvsFUkbyGMsb2ZXb5oo_EafC3s/exec';
 
   function ensureUserName() {
-    if (!localStorage.getItem('genUserName')) {
+    const hadName = !!localStorage.getItem('genUserName');
+    if (!hadName) {
       const name = prompt('Enter your name (one-time, for team tracking):');
       if (name) localStorage.setItem('genUserName', name.trim());
     }
@@ -2275,6 +2333,7 @@ Output ONLY the episode template. No preamble, no "Here's the template", no mark
       }
     }
   });
+
   </script>
 </body>
 </html>
