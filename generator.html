@@ -182,7 +182,7 @@
     .ep-badge.active { background: #e0e7ff; color: #3730a3; }
     .ep-badge.pending { background: #f3f4f6; color: #6b7280; }
     .ep-body { margin-top: 16px; }
-    .ep-body.collapsed { display: none; }
+    .collapsed { display: none; }
     .ep-script-preview { font-size: 13px; color: #6b7280; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
     /* Option cards */
@@ -221,6 +221,18 @@
     .fact-link { font-size: 12px; color: #2563eb; text-decoration: none; margin-top: 4px; display: inline-block; }
     .fact-link:hover { text-decoration: underline; }
 
+    /* History tabs */
+    .history-tab { padding: 5px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #e5e7eb; background: #f9fafb; color: #6b7280; transition: all 0.15s; font-family: inherit; }
+    .history-tab:hover { background: #eef2ff; border-color: #6366f1; color: #4338ca; }
+    .history-tab.active { background: #4f46e5; color: white; border-color: #4f46e5; }
+
+    /* Ban word checker */
+    .ban-word-highlight { background: #fee2e2; border-bottom: 2px solid #dc2626; padding: 0 2px; border-radius: 2px; }
+    .ban-panel { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 12px 16px; margin-top: 10px; }
+    .ban-item { display: inline-block; padding: 3px 10px; margin: 3px; border-radius: 999px; font-size: 12px; background: #fee2e2; color: #991b1b; font-weight: 600; }
+    .ban-settings-btn { background: transparent; border: 1px dashed #d1d5db; border-radius: 7px; padding: 6px 12px; font-size: 12px; color: #6b7280; cursor: pointer; font-family: inherit; }
+    .ban-settings-btn:hover { border-color: #6366f1; color: #4338ca; }
+
     /* Script editable area */
     .script-edit { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px 24px; font-size: 15px; line-height: 1.75; white-space: pre-wrap; font-family: inherit; color: #1f2937; min-height: 500px; width: 100%; resize: vertical; }
 
@@ -248,6 +260,8 @@
         &nbsp;·&nbsp; Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>
       </div>
     </div>
+
+
 
     <!-- Series Setup -->
     <div class="card" id="setupCard">
@@ -338,6 +352,25 @@
       <div class="err" id="errorText"></div>
     </div>
 
+    <!-- B-Roll Generator (standalone) -->
+    <div class="card" id="brollCard" style="border-left:4px solid #8b5cf6;">
+      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="document.getElementById('brollBody').classList.toggle('collapsed')">
+        <div style="font-weight:700;font-size:15px;color:#1e293b;">🎬 B-Roll Generator <span class="hint" style="font-weight:400;margin-left:6px;">(paste any existing script)</span></div>
+        <span class="hint">▼</span>
+      </div>
+      <div id="brollBody" class="collapsed" style="margin-top:14px;">
+        <textarea id="brollInput" placeholder="Paste your existing script here..." style="min-height:200px;font-size:14px;line-height:1.65;"></textarea>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+          <button class="ai-gen" onclick="generateBRoll()" id="brollBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
+            Add B-Roll Tags
+          </button>
+          <button class="ghost" onclick="copyBRollResult()" id="brollCopyBtn" style="display:none;">Copy Result</button>
+          <span id="brollStatus" class="hint"></span>
+        </div>
+      </div>
+    </div>
+
     <!-- Episode Timeline -->
     <div id="timeline" class="timeline"></div>
 
@@ -350,6 +383,7 @@
           <button class="ghost" onclick="clearHistory()" style="color:#dc2626;">Clear all</button>
         </div>
       </div>
+      <div id="historyTabs" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;"></div>
       <table class="history-table">
         <thead>
           <tr>
@@ -1132,6 +1166,7 @@ Do NOT add any meta-commentary before or after the script.`}`;
     if (!s.apiKey) { showError('Please enter your Claude API key.'); return; }
     if (!s.series) { alert('Please enter a series name.'); return; }
     ensureUserName();
+
     if (!episodes.length) addEpisode();
   }
 
@@ -1151,6 +1186,7 @@ Do NOT add any meta-commentary before or after the script.`}`;
       status: 'active',
       prevCliffhanger: prevCliff,
     });
+
     // Collapse previous episodes
     for (let i = 0; i < episodes.length - 1; i++) {
       if (episodes[i].status === 'active') episodes[i].status = 'done';
@@ -1193,6 +1229,29 @@ Do NOT add any meta-commentary before or after the script.`}`;
     html += '<div class="step-label">Step 1 — Episode details <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#9ca3af;">(optional)</span></div>';
     html += '<div class="row row-2"><div>';
     html += '<label>Episode title<input type="text" id="epTitle_' + ep.num + '" value="' + escapeHtml(ep.title) + '" placeholder="e.g. Draupadi ka Cheerharan" onchange="updateEpField(' + ep.num + ',\'title\',this.value)"></label>';
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">';
+    html += '<button class="ai-gen" onclick="suggestTitles(' + ep.num + ')" id="titleSugBtn_' + ep.num + '" style="font-size:11px;padding:4px 10px;">✦ Suggest Titles</button>';
+    html += '<span id="titleSugStatus_' + ep.num + '" class="hint"></span>';
+    html += '</div>';
+    html += '<div id="titleChips_' + ep.num + '" class="' + (ep._titleSuggestions ? '' : 'hidden') + '" style="margin-top:6px;">';
+    if (ep._titleSuggestions) {
+      html += '<div style="margin-bottom:4px;"><span style="font-size:11px;font-weight:600;color:#6b7280;">Episode Titles:</span></div>';
+      html += '<div class="chip-row">';
+      html += ep._titleSuggestions.epTitles.map(function(t) {
+        return '<span class="chip" onclick="pickEpTitle(' + ep.num + ',this.textContent)">' + escapeHtml(t) + '</span>';
+      }).join('');
+      html += '</div>';
+      html += '<div style="margin:8px 0 4px;"><span style="font-size:11px;font-weight:600;color:#6b7280;">Thumbnail Titles:</span></div>';
+      html += '<div class="chip-row">';
+      html += ep._titleSuggestions.thumbTitles.map(function(t) {
+        return '<span class="chip" onclick="pickThumbTitle(' + ep.num + ',this.textContent)" style="background:#fef3c7;border-color:#fde68a;color:#92400e;">' + escapeHtml(t) + '</span>';
+      }).join('');
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '<div style="margin-top:6px;"><label style="font-size:12px;color:#92400e;">Thumbnail title <span style="font-weight:400;color:#9ca3af;">(from suggestions above)</span>';
+    html += '<input type="text" id="thumbTitle_' + ep.num + '" value="' + escapeHtml(ep.thumbnailTitle || '') + '" placeholder="Click a thumbnail suggestion or type your own" style="font-size:13px;background:#fffbeb;border-color:#fde68a;" onchange="episodes[' + (ep.num - 1) + '].thumbnailTitle=this.value">';
+    html += '</label></div>';
     html += '</div><div>';
     html += '<label>Topic / angle</label>';
     html += '<div style="display:flex;gap:8px;"><input type="text" id="epTopic_' + ep.num + '" value="' + escapeHtml(ep.topic) + '" placeholder="e.g. Hanuman ne poora pahaad kyun uthaya?" onchange="updateEpField(' + ep.num + ',\'topic\',this.value)">';
@@ -1260,10 +1319,13 @@ Do NOT add any meta-commentary before or after the script.`}`;
       html += '<button class="primary" onclick="generateEpisodeScript(' + ep.num + ')" id="genBtn_' + ep.num + '">Generate Script for Episode ' + ep.num + '</button>';
       html += ' <span id="genStatus_' + ep.num + '" class="hint"></span>';
     } else {
-      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">';
       html += '<span class="tag" style="background:#e0e7ff;color:#3730a3;">Episode ' + ep.num + '</span>';
+      html += '<div style="display:flex;gap:6px;flex-wrap:wrap;">';
+      html += '<button class="ghost" onclick="goBackToHooks(' + ep.num + ')" style="font-size:12px;color:#6366f1;" title="Clear script and pick different hooks/cliffhangers">↩ Change Hook/Cliff</button>';
+      html += '<button class="ghost" onclick="regenerateScript(' + ep.num + ')" style="font-size:12px;color:#d97706;" title="Discard this script and generate a fresh one">↻ Regenerate</button>';
       html += '<button class="ghost" onclick="copyEpScript(' + ep.num + ')">Copy Script</button>';
-      html += '</div>';
+      html += '</div></div>';
       html += '<textarea class="script-edit" id="scriptText_' + ep.num + '" onchange="updateEpField(' + ep.num + ',\'script\',this.value)">' + escapeHtml(ep.script) + '</textarea>';
 
       // Rewrite bar — presets + custom
@@ -1308,6 +1370,30 @@ Do NOT add any meta-commentary before or after the script.`}`;
           html += '<a href="' + googleUrl + '" target="_blank" rel="noopener" class="fact-link">Search on Google →</a>';
           html += '</div>';
         }
+        html += '</div>';
+      }
+
+      // Ban word checker
+      html += '<div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">';
+      html += '<span class="step-label" style="margin:0;">Language:</span>';
+      html += '<button class="fact-btn" onclick="scanBanWords(' + ep.num + ')" style="background:#fef2f2;border-color:#fca5a5;color:#991b1b;" title="Scan for banned/inappropriate words">🚫 Check ban words</button>';
+      html += '<button class="ban-settings-btn" onclick="showBanWordSettings()">⚙ Edit word list</button>';
+      if (ep._banFlags && ep._banFlags.length) {
+        html += '<button class="ghost" onclick="clearBanFlags(' + ep.num + ')" style="font-size:11px;padding:2px 8px;color:#dc2626;">Clear flags</button>';
+      }
+      html += '<span id="banStatus_' + ep.num + '" class="hint"></span>';
+      html += '</div>';
+
+      // Ban word results panel
+      if (ep._banFlags && ep._banFlags.length) {
+        html += '<div class="ban-panel" id="banPanel_' + ep.num + '">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+        html += '<strong style="font-size:13px;color:#991b1b;">⚠ Found ' + ep._banFlags.length + ' banned word(s)</strong>';
+        html += '</div>';
+        for (const f of ep._banFlags) {
+          html += '<span class="ban-item">' + escapeHtml(f.word) + (f.count > 1 ? ' ×' + f.count : '') + '</span>';
+        }
+        html += '<div class="hint" style="margin-top:8px;color:#991b1b;">Please review and replace these words before publishing.</div>';
         html += '</div>';
       }
 
@@ -1364,12 +1450,42 @@ Do NOT add any meta-commentary before or after the script.`}`;
     if (val.trim()) episodes[num - 1].selectedCliffhanger = val.trim();
   }
 
+  function goBackToHooks(num) {
+    const ep = episodes[num - 1];
+    if (!ep) return;
+    if (!confirm('This will clear the current script so you can pick different hooks/cliffhangers. Continue?')) return;
+    ep.script = '';
+    ep.selectedHook = '';
+    ep.selectedCliffhanger = '';
+    ep._undoStack = [];
+    ep._factFlags = [];
+    ep._banFlags = [];
+    renderTimeline();
+    // Scroll to the hook section
+    const card = document.getElementById('ep_card_' + num);
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function regenerateScript(num) {
+    const ep = episodes[num - 1];
+    if (!ep) return;
+    if (!confirm('This will discard the current script and generate a fresh one. Continue?')) return;
+    ep.script = '';
+    ep._undoStack = [];
+    ep._factFlags = [];
+    ep._banFlags = [];
+    renderTimeline();
+    // Auto-trigger generation
+    generateEpisodeScript(num);
+  }
+
   function completeAndNext(num) {
     const ep = episodes[num - 1];
     ep.status = 'done';
     // Sync script from textarea
     const ta = document.getElementById('scriptText_' + num);
     if (ta) ep.script = ta.value;
+
     addEpisode();
   }
 
@@ -1460,6 +1576,7 @@ Output exactly 5 lines. Each line is one topic. No numbering, no bullets, no exp
       const suggestions = result.trim().split('\n').filter(l => l.trim()).slice(0, 5).map(t => t.trim());
       // Persist suggestions on the episode object so they survive re-renders
       ep._topicSuggestions = (ep._topicSuggestions || []).concat(suggestions);
+
       // Only show latest batch
       chipsDiv.innerHTML = suggestions.map(t =>
         '<span class="chip" onclick="pickTopic(' + num + ',this.textContent)">' + escapeHtml(t) + '</span>'
@@ -1601,6 +1718,7 @@ CLIFF 3: [cliffhanger text in Hinglish]`;
 
       console.log('Final hookOptions:', ep.hookOptions);
       console.log('Final cliffOptions:', ep.cliffOptions);
+
       renderTimeline();
     } catch (e) {
       status.textContent = 'Error: ' + e.message;
@@ -1645,6 +1763,7 @@ CLIFF 3: [cliffhanger text in Hinglish]`;
 
       addToHistory(ep.topic || ep.title, s.category, scriptText, s.series, num, s.totalEpisodes);
       logGeneration(s.category, s.series, num, ep.topic || ep.title, scriptText.length);
+      autoScanBanWords(num);
       renderTimeline();
     } catch (e) {
       status.textContent = 'Error: ' + e.message;
@@ -1916,6 +2035,294 @@ Be thorough — even one wrong fact destroys creator credibility.`;
   }
 
   // ============================================================
+  // B-ROLL GENERATOR (STANDALONE)
+  // ============================================================
+  async function generateBRoll() {
+    const apiKey = document.getElementById('apiKey').value.trim();
+    if (!apiKey) { showError('Please enter your Claude API key.'); return; }
+    const input = document.getElementById('brollInput').value.trim();
+    if (!input) { alert('Please paste a script first.'); return; }
+
+    const btn = document.getElementById('brollBtn');
+    const status = document.getElementById('brollStatus');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Adding B-Roll tags...';
+    status.textContent = 'Analyzing script for visual moments...';
+
+    try {
+      const prompt = `You are a B-Roll specialist for Master App (EloElo) — a Hindi edutainment short-video platform. Your job is to insert [B-Roll: description] tags into an existing script.
+
+RULES:
+1. Insert a [B-Roll: ...] tag after EVERY visual moment, statistic, example, or key point — roughly every 15-20 seconds of content.
+2. B-Roll descriptions must be SPECIFIC and actionable for the video editor: what footage, graphic, or animation to show.
+3. Use a mix of: stock footage descriptions, text-on-screen suggestions, graphic/animation ideas, screenshot suggestions.
+4. Keep the ENTIRE original script intact — only ADD [B-Roll: ...] tags, do not change any words.
+5. Place tags on their own line right after the sentence they illustrate.
+6. Every tag should be in this format: [B-Roll: <specific visual description>]
+
+SCRIPT TO ADD B-ROLL TO:
+${input}
+
+OUTPUT: Return the COMPLETE script with [B-Roll: ...] tags inserted. Do not add any preamble or explanation.`;
+
+      const result = await callClaude(apiKey, prompt);
+      document.getElementById('brollInput').value = result;
+      document.getElementById('brollCopyBtn').style.display = 'inline-flex';
+      status.textContent = 'B-Roll tags added! Review and copy.';
+      status.style.color = '#059669';
+      // Log to history under "B-Roll" tab
+      addToHistory('B-Roll tagged script', 'B-Roll', result, 'B-Roll', '', '');
+    } catch (e) {
+      status.textContent = 'Error: ' + e.message;
+      status.style.color = '#dc2626';
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg> Add B-Roll Tags';
+    }
+  }
+
+  async function copyBRollResult() {
+    const text = document.getElementById('brollInput').value;
+    try { await navigator.clipboard.writeText(text); alert('Script with B-Roll copied!'); } catch (e) { alert('Copy failed.'); }
+  }
+
+  // ============================================================
+  // TITLE & THUMBNAIL SUGGESTIONS
+  // ============================================================
+  async function suggestTitles(num) {
+    const s = getSetup();
+    if (!s.apiKey) { showError('Please enter your Claude API key.'); return; }
+    const ep = episodes[num - 1];
+    ep.title = document.getElementById('epTitle_' + num)?.value || ep.title;
+    ep.topic = document.getElementById('epTopic_' + num)?.value || ep.topic;
+
+    const btn = document.getElementById('titleSugBtn_' + num);
+    const status = document.getElementById('titleSugStatus_' + num);
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+    status.textContent = 'Generating title ideas...';
+
+    const topicContext = ep.topic || ep.title || '';
+    const arcHint = getArcHintForEpisode(num);
+
+    try {
+      const prompt = `You are a title specialist for Master App (EloElo) — a Hindi edutainment short-video platform for tier 2/3 India, ages 18-35.
+
+SERIES: "${s.series}" | CATEGORY: ${s.category} | EPISODE: ${num} of ${s.totalEpisodes}
+${topicContext ? 'TOPIC/ANGLE: ' + topicContext : ''}
+${arcHint ? 'ARC HINT: ' + arcHint : ''}
+
+Generate EXACTLY 3 episode titles and EXACTLY 3 thumbnail titles.
+
+EPISODE TITLE RULES:
+- Hinglish (Roman script), curiosity-driven, 5-10 words
+- Must create urgency or curiosity — "Yeh galti mat karna!", "99% log nahi jaante"
+- Include a specific number, name, or shocking fact if possible
+- NOT generic like "Important Tips" or "Full Guide"
+
+THUMBNAIL TITLE RULES:
+- VERY short: 3-6 words MAX (must fit on a thumbnail)
+- All caps energy — punchy, bold, scroll-stopping
+- Use numbers, emojis vibes (but don't include emojis), or shocking claims
+- Examples: "₹50,000 SCAM!", "YEH MAT KARO!", "SECRET TRICK"
+
+OUTPUT FORMAT (strict — one per line, no numbering, no extra text):
+EP: first episode title
+EP: second episode title
+EP: third episode title
+THUMB: first thumbnail title
+THUMB: second thumbnail title
+THUMB: third thumbnail title`;
+
+      const result = await callClaude(s.apiKey, prompt);
+      const lines = result.split('\n').map(l => l.trim()).filter(l => l);
+      const epTitles = [];
+      const thumbTitles = [];
+      for (const line of lines) {
+        const epMatch = line.match(/^EP:\s*(.+)/i);
+        if (epMatch && epMatch[1].trim()) { epTitles.push(epMatch[1].trim()); continue; }
+        const thumbMatch = line.match(/^THUMB:\s*(.+)/i);
+        if (thumbMatch && thumbMatch[1].trim()) { thumbTitles.push(thumbMatch[1].trim()); continue; }
+      }
+      // Fallback: if parsing fails, split lines in half
+      if (!epTitles.length && !thumbTitles.length && lines.length >= 2) {
+        const mid = Math.ceil(lines.length / 2);
+        for (let i = 0; i < mid && i < 3; i++) epTitles.push(lines[i].replace(/^(EP|THUMB)[:\-]\s*/i, ''));
+        for (let i = mid; i < lines.length && thumbTitles.length < 3; i++) thumbTitles.push(lines[i].replace(/^(EP|THUMB)[:\-]\s*/i, ''));
+      }
+
+      ep._titleSuggestions = {
+        epTitles: epTitles.slice(0, 3),
+        thumbTitles: thumbTitles.slice(0, 3),
+      };
+
+      status.textContent = '';
+      renderTimeline();
+    } catch (e) {
+      status.textContent = 'Error: ' + e.message;
+      status.style.color = '#dc2626';
+      btn.disabled = false;
+      btn.innerHTML = '✦ Suggest Titles';
+    }
+  }
+
+  function pickEpTitle(num, text) {
+    const ep = episodes[num - 1];
+    ep.title = text;
+    const input = document.getElementById('epTitle_' + num);
+    if (input) input.value = text;
+  }
+
+  function pickThumbTitle(num, text) {
+    // Store as a field on the episode and show in a read-only box
+    const ep = episodes[num - 1];
+    ep.thumbnailTitle = text;
+    const box = document.getElementById('thumbTitle_' + num);
+    if (box) box.value = text;
+  }
+
+  // ============================================================
+  // CUSS / BAN WORD CHECKER
+  // ============================================================
+  const DEFAULT_BAN_WORDS = [
+    // Highly negative / violent
+    'darindagi', 'bhayanak', 'ghatiya', 'gandu', 'chutiya', 'madarchod', 'behenchod',
+    'bhosdike', 'randi', 'harami', 'kutta', 'kutti', 'sala', 'saali', 'kamina',
+    'kamini', 'haramkhor', 'tharki', 'badtameez', 'nalayak', 'gadha', 'ullu',
+    'bewakoof', 'idiot', 'stupid', 'fool', 'duffer', 'pagal', 'psycho',
+    // Casteist / communal
+    'chamar', 'bhangi', 'chuhra', 'achoot',
+    // Sexually explicit
+    'sexy', 'porn', 'xxx', 'nanga', 'nangi',
+    // Death / extreme violence
+    'maarna', 'maut', 'khooni', 'qatil', 'zeher',
+    // Defamation risk
+    'fraud', 'chor', 'daku', 'criminal', 'terrorist',
+  ];
+
+  function getBanWords() {
+    const custom = JSON.parse(localStorage.getItem('customBanWords') || '[]');
+    return [...DEFAULT_BAN_WORDS, ...custom];
+  }
+
+  function checkBanWords(text) {
+    const banWords = getBanWords();
+    const found = [];
+    const lower = text.toLowerCase();
+    for (const word of banWords) {
+      // Word boundary match (handles Hinglish mixed text)
+      const regex = new RegExp('(^|[\\s,\\.!?;:\\-\\"\'\\(\\)])' + word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[\\s,\\.!?;:\\-\\"\'\\(\\)])', 'gi');
+      const matches = lower.match(regex);
+      if (matches) {
+        found.push({ word: word, count: matches.length });
+      }
+    }
+    return found;
+  }
+
+  function scanBanWords(num) {
+    const ep = episodes[num - 1];
+    const ta = document.getElementById('scriptText_' + num);
+    if (!ta) return;
+    const text = ta.value;
+    const found = checkBanWords(text);
+
+    ep._banFlags = found;
+
+    if (found.length) {
+      // Insert visual markers in the script display
+      let markedText = text;
+      for (const f of found) {
+        const regex = new RegExp('(\\b' + f.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b)', 'gi');
+        markedText = markedText.replace(regex, '[🚫 $1]');
+      }
+      ta.value = markedText;
+      ep.script = markedText;
+    }
+
+    renderTimeline();
+    // Scroll to the ban panel
+    const panel = document.getElementById('banPanel_' + num);
+    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // Auto-scan: called after script generation
+  function autoScanBanWords(num) {
+    const ep = episodes[num - 1];
+    if (!ep || !ep.script) return;
+    const found = checkBanWords(ep.script);
+    ep._banFlags = found;
+    // Don't modify script text for auto-scan — just flag
+  }
+
+  function clearBanFlags(num) {
+    const ep = episodes[num - 1];
+    if (!ep) return;
+    // Remove [🚫 ...] markers from script
+    const ta = document.getElementById('scriptText_' + num);
+    if (ta) {
+      const cleaned = ta.value.replace(/\[🚫\s*(.*?)\]/g, '$1');
+      ta.value = cleaned;
+      ep.script = cleaned;
+    }
+    ep._banFlags = [];
+    renderTimeline();
+  }
+
+  function showBanWordSettings() {
+    let modal = document.getElementById('banSettingsModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'banSettingsModal';
+      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;';
+      modal.innerHTML = `
+        <div style="background:white;border-radius:12px;max-width:550px;width:100%;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #e5e7eb;">
+            <div style="font-weight:700;font-size:16px;">Ban Word Settings</div>
+            <button class="ghost" onclick="document.getElementById('banSettingsModal').style.display='none'">Close</button>
+          </div>
+          <div style="padding:20px;overflow-y:auto;">
+            <div style="margin-bottom:16px;">
+              <div style="font-weight:600;font-size:13px;color:#374151;margin-bottom:4px;">Default list (${DEFAULT_BAN_WORDS.length} words) — built-in, cannot be removed</div>
+              <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px;max-height:120px;overflow-y:auto;font-size:12px;color:#6b7280;line-height:1.8;">
+                ${DEFAULT_BAN_WORDS.map(w => '<span style="background:#fee2e2;padding:1px 6px;border-radius:4px;margin:2px;display:inline-block;color:#991b1b;">' + w + '</span>').join(' ')}
+              </div>
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:13px;color:#374151;margin-bottom:4px;">Your custom words</div>
+              <textarea id="customBanWordsInput" style="min-height:80px;font-size:13px;" placeholder="Enter words separated by commas, e.g.: bakwas, bekar, wahiyat"></textarea>
+              <div class="hint" style="margin-top:4px;">Comma-separated. These are saved in your browser.</div>
+              <div style="display:flex;gap:8px;margin-top:8px;">
+                <button class="primary" onclick="saveCustomBanWords()" style="font-size:13px;padding:8px 16px;">Save</button>
+                <button class="ghost" onclick="clearCustomBanWords()">Clear custom words</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      document.body.appendChild(modal);
+      modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+    }
+    // Load current custom words
+    const custom = JSON.parse(localStorage.getItem('customBanWords') || '[]');
+    document.getElementById('customBanWordsInput').value = custom.join(', ');
+    modal.style.display = 'flex';
+  }
+
+  function saveCustomBanWords() {
+    const input = document.getElementById('customBanWordsInput').value;
+    const words = input.split(',').map(w => w.trim().toLowerCase()).filter(w => w.length > 0);
+    localStorage.setItem('customBanWords', JSON.stringify(words));
+    alert('Saved ' + words.length + ' custom ban words.');
+    document.getElementById('banSettingsModal').style.display = 'none';
+  }
+
+  function clearCustomBanWords() {
+    localStorage.removeItem('customBanWords');
+    document.getElementById('customBanWordsInput').value = '';
+    alert('Custom ban words cleared.');
+  }
+
+  // ============================================================
   // PER-EPISODE FEEDBACK
   // ============================================================
   function submitEpFeedback(num) {
@@ -1999,22 +2406,53 @@ Be thorough — even one wrong fact destroys creator credibility.`;
     renderHistory();
   }
 
+  let activeHistoryTab = 'all'; // 'all' or a series name
+
   function renderHistory() {
     const card = document.getElementById('historyCard');
     const body = document.getElementById('historyBody');
     const count = document.getElementById('historyCount');
+    const tabsDiv = document.getElementById('historyTabs');
 
     if (!generationHistory.length) { card.classList.add('hidden'); return; }
 
     card.classList.remove('hidden');
     count.textContent = '(' + generationHistory.length + ')';
-    body.innerHTML = '';
 
-    for (let i = generationHistory.length - 1; i >= 0; i--) {
-      const h = generationHistory[i];
+    // Build series tabs
+    const seriesSet = new Set();
+    for (const h of generationHistory) {
+      if (h.series) seriesSet.add(h.series);
+    }
+    tabsDiv.innerHTML = '';
+    // "All" tab
+    const allTab = document.createElement('button');
+    allTab.className = 'history-tab' + (activeHistoryTab === 'all' ? ' active' : '');
+    allTab.textContent = 'All (' + generationHistory.length + ')';
+    allTab.onclick = function() { activeHistoryTab = 'all'; renderHistory(); };
+    tabsDiv.appendChild(allTab);
+    // Per-series tabs
+    for (const sName of seriesSet) {
+      const cnt = generationHistory.filter(h => h.series === sName).length;
+      const tab = document.createElement('button');
+      tab.className = 'history-tab' + (activeHistoryTab === sName ? ' active' : '');
+      tab.textContent = sName + ' (' + cnt + ')';
+      tab.onclick = function() { activeHistoryTab = sName; renderHistory(); };
+      tabsDiv.appendChild(tab);
+    }
+
+    // Filter entries
+    const filtered = activeHistoryTab === 'all'
+      ? generationHistory
+      : generationHistory.filter(h => h.series === activeHistoryTab);
+
+    body.innerHTML = '';
+    for (let i = filtered.length - 1; i >= 0; i--) {
+      const h = filtered[i];
+      const origIdx = generationHistory.indexOf(h);
       const tr = document.createElement('tr');
       tr.className = 'history-row';
-      tr.onclick = function () { viewHistoryEntry(i); };
+      tr.onclick = function () { viewHistoryEntry(origIdx); };
       const ts = new Date(h.timestamp);
       const timeStr = ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       tr.innerHTML =
@@ -2152,6 +2590,7 @@ Be thorough — even one wrong fact destroys creator credibility.`;
         if (remember && saved) document.getElementById('apiKey').value = saved;
       } catch (e) {}
     }
+
   })();
 
   function loadDefaultArc() {
