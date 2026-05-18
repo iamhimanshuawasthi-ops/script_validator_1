@@ -448,7 +448,8 @@
         'A modern parallel that lets a tier 2/3 viewer connect ancient context to today',
         'An emotional anchor — bhakti, awe, gratitude, longing — landed at the climax',
         'Family-viewing safety — language and visuals appropriate for shared watching',
-        'Conversational Hinglish that sounds like a knowledgeable friend, not a textbook',
+        'Shuddha Hindi with natural Sanskrit vocabulary — this category sounds like a learned katha-vachak (storyteller), NOT casual Hinglish. Use words like dwar (not darwaza), prabhu (not bhagwan casual), aarti, sindoor, tapasya, moksha, param, divya, anugraha, charnamrit, darshan, prarthana, sadhana, pavitra, mangal, kalyan, shraddha, seva, yagya, mantra, shloka freely.',
+        'VOCABULARY GUIDE for this category: Use "aayu/aayushya" not "umar", "vriddhi" not "badhna", "nivedita/samarpit" not "dedicated", "priyajan" not "apne log", "avashya" not "zaroor", "uttam" not "achha", "param" not "sabse bada", "anugraha" not "kripa casual". These Sanskrit-origin words are CORRECT and EXPECTED here.',
         'One single takeaway the viewer carries away (a name, a value, a story beat)',
       ],
       doNotDo: [
@@ -456,10 +457,11 @@
         'Removing devotional reverence, irony, or making sacred figures the butt of jokes',
         'Replacing emotional/dramatic story beats with neutral explanation',
         'Adding disclaimers, hedging, or "some scholars believe" softening',
-        'Making the script more "professional", news-anchor toned, or formal — Hinglish warmth IS the format',
+        'Using casual Hinglish or English words where a Hindi/Sanskrit equivalent exists — say "dwar" not "door/darwaza", say "prabhu" not "god", say "prarthana" not "prayer". This category demands shuddha Hindi register.',
         'Adding more facts or expanding scope — 1-3 min carries ONE insight, not three',
         'Translating Sanskrit terms by removing them — keep the term and explain it briefly instead',
         'Replacing storytelling with bullet-point information',
+        'Using everyday street-Hindi for sacred contexts — "bhai yeh try karo" tone is WRONG for devotional content. The tone should be respectful, warm, and elevated — like a grandmother telling a sacred story, not a friend at a chai stall.',
       ],
     },
     finance: {
@@ -884,9 +886,35 @@ Total budget: ~${Math.round(duration * 2.5)} words for ${duration}s. Distribute 
    (b) Master App mention: "Master app ko apne doston ke saath share kijiye"
    (c) Next-episode teaser: "Milte hain Master ke agle episode mein, jahan hum jaanenge [specific next topic]"
    A CTA with all three is ideal. At minimum include ONE of (a), (b), (c).
+${(() => {
+  if (!seriesArc || !currentEpisode || !totalEpisodes) return '';
+  const nextEpNum = parseInt(currentEpisode) + 1;
+  if (nextEpNum > parseInt(totalEpisodes)) return '   NOTE: This is the FINAL episode — no next-episode teaser needed. Instead, close all loops and give a strong series sign-off with Master App CTA.';
+  const arcLines = seriesArc.split('\n');
+  const nextLine = arcLines.find(l => l.toLowerCase().includes('ep ' + nextEpNum));
+  if (nextLine) return '   NEXT EPISODE ARC: ' + nextLine.trim() + '\n   Use THIS specific arc line to craft the next-episode teaser in the CTA — do NOT invent a random topic. The teaser must match what episode ' + nextEpNum + ' will actually cover.';
+  return '';
+})()}
 
 === VOICE & REGISTER — CRITICAL ===
-Write in SPOKEN Hinglish — the "chai stall friend" register. Test every line with this rule:
+${catKey === 'mythology' ? `This is DEVOTIONAL / MYTHOLOGY content. Use SHUDDHA HINDI — elevated, respectful, warm storytelling register.
+Test every line with this rule: Would a respected katha-vachak (spiritual storyteller) or a loving grandmother say this while narrating a sacred story? If not, rewrite it.
+
+DO:
+  - "Prabhu Shri Ram ne jab Shabari ke jhoothhe ber khaye, toh prem ka woh roop saamne aaya..." ✓
+  - "Yeh katha hai uss bhakt ki, jisne apna sarvasv Mahadev ko samarpit kar diya..." ✓
+  - "Dwar par khade hoke jab unhone prarthana ki..." ✓
+
+USE FREELY — these Sanskrit/tatsam words are CORRECT for this category:
+  aayushya, vriddhi, utpann, nivedita, avashya, priyajan, param, divya, anugraha,
+  charnamrit, darshan, prarthana, sadhana, pavitra, mangal, kalyan, shraddha, seva,
+  yagya, mantra, shloka, moksha, tapasya, bhakti, dwar, prabhu, aarti, sindoor,
+  uttam, param, anugraha, kripa, prasad, vandana, archana, upasana, sadhak
+
+DO NOT:
+  - Use casual Hinglish like "bhai yeh try karo", "matlab samjho na" — this is sacred content, not tech tips
+  - Use English words where Hindi equivalents exist — "door" should be "dwar", "prayer" should be "prarthana", "dedicated" should be "samarpit"
+  - But keep it WARM and STORYTELLING — not cold, textbook Sanskrit. Think loving grandmother, not university lecture.` : `Write in SPOKEN Hinglish — the "chai stall friend" register. Test every line with this rule:
 Would a trusted friend say this over chai? If not, rewrite it.
 
 DO:
@@ -898,7 +926,7 @@ DO NOT:
   - "aayushya", "vriddhi", "utpann hua", "nivedita", "avashya", "priyajano" — these are tatsam/Sanskrit-literary words. Use everyday equivalents:
     "aayu/umar", "badh jaati hai", "soch aayi", "samarpit", "zaroor", "apno ko/doston ko"
   - One or two classical terms for flavor are fine (bhakti, darshan, tapasya, sindoor) — those are lived-in words
-  - But a whole script in tatsam register is pravachan, not storytelling
+  - But a whole script in tatsam register is pravachan, not storytelling`}
 
 === REVEAL CONTROL FOR SERIES EPISODES ===
 When writing a series (multiple episodes), control how much you reveal:
@@ -951,6 +979,19 @@ FAILURE 5 — GENERIC REFERENCES (Relatability scores 8 instead of 12-15):
   GOOD: "SBI app ka PIN", "PhonePe ka UPI PIN", "Paytm wallet" (named Indian apps the viewer uses daily)
   GOOD: "Jaise agar koi tumhare naam se fake KYC call kare aur Paytm ka OTP maange" (specific Indian scam scenario)
   RULE: Every reference to an app, bank, service, or device must use a NAMED Indian example. "Bank" → "SBI". "Phone" → "Redmi". "Payment app" → "PhonePe". The viewer must see THEIR phone, THEIR bank, THEIR life.
+
+=== FACTUAL ACCURACY — ZERO TOLERANCE FOR HALLUCINATION ===
+This script will be recorded and published to millions of viewers. Every fact MUST be verifiable.
+
+RULES:
+1. ONLY use well-known, widely-documented facts. If you are not 95%+ confident a fact is true, DO NOT include it.
+2. NEVER invent statistics, dates, percentages, or monetary figures. Every number must be a real, verifiable number.
+3. NEVER attribute quotes to real people unless the quote is extremely well-known and widely documented.
+4. NEVER invent historical events, court cases, scientific studies, or government schemes that you aren't certain exist.
+5. If the topic requires specific data you're unsure about, use DIRECTIONAL language: "kareeban" (approximately), "lagbhag" (roughly) — and keep the claim conservative.
+6. For mythology/devotional content: stick to stories from well-known scriptures (Ramayana, Mahabharata, Puranas, Bhagavad Gita). Do NOT mix up details between different texts or invent story elements.
+7. For government schemes: use only the scheme name and broad purpose if you're unsure of exact eligibility amounts or dates. Wrong numbers are worse than no numbers.
+8. SELF-CHECK: After writing, re-read every factual claim and ask: "Would this survive a Google search?" If not, soften or remove it.
 
 === WHAT MAKES THIS CATEGORY WORK ===
 ${driversBlock}
@@ -1337,6 +1378,7 @@ Do NOT add any meta-commentary before or after the script.`}`;
       html += '<button class="rewrite-preset" onclick="quickRewrite(' + ep.num + ',\'Simplify the language — use shorter sentences, more everyday Hinglish, less formal\')">Simplify</button>';
       html += '<button class="rewrite-preset" onclick="quickRewrite(' + ep.num + ',\'Make this more dramatic and emotional — add tension, stakes, viewer investment\')">More dramatic</button>';
       html += '<button class="rewrite-preset" onclick="quickRewrite(' + ep.num + ',\'Make the CTA/cliffhanger at the end much more specific and irresistible\')">Better cliffhanger</button>';
+      html += '<button class="rewrite-preset" onclick="quickRewrite(' + ep.num + ',\'Fix Hindi grammar issues in this script: check gender agreement (masculine/feminine verbs matching subject), correct verb conjugation (tense consistency), fix postposition usage (mein/ko/se/par/ka/ki/ke), fix any English-Hindi code-mix grammar errors, and ensure Devanagari transliteration consistency. Keep the meaning and tone identical — ONLY fix grammar.\')">Grammar check</button>';
       html += '</div>';
       html += '<div class="rewrite-bar">';
       html += '<input type="text" id="rewritePrompt_' + ep.num + '" placeholder="Select text above → describe change (or use a quick button)">';
@@ -1640,11 +1682,13 @@ HOOKS must be:
 - First-line openers in Hinglish — specific, surprising, with a named thing (number, person, app, scheme)
 - Each hook should take a DIFFERENT angle${hasTopic ? ' on the same topic' : ' — each suggesting a completely different topic/direction for this episode'}
 - NO generic openers ("Aaj hum baat karenge...", "Kya aap jaante hain...")
+- FACTUAL ACCURACY: Every name, number, date, or claim in a hook MUST be real and verifiable. Do NOT invent statistics or facts to make hooks more dramatic. A real but slightly less dramatic fact beats a made-up shocking one.
 
 CLIFFHANGERS must be:
 - Specific teases for what comes next — make the viewer NEED the next episode
 - Each should tease a different aspect of the upcoming content
 - Name something specific that the next episode will reveal
+- FACTUAL ACCURACY: Cliffhanger teases must reference real facts/stories that the next episode can actually deliver on. Never promise a reveal based on invented information.
 
 CRITICAL: Output in this EXACT format — one per line, no extra text, no blank lines:
 HOOK 1: [hook text in Hinglish]
