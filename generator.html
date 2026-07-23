@@ -1166,10 +1166,21 @@ Do NOT add any meta-commentary before or after the script.`}`;
     }
 
     const data = await res.json();
-    if (data.content && data.content[0] && data.content[0].text) {
-      return data.content[0].text;
-    }
-    throw new Error('Unexpected response format from Claude API');
+    const text = extractText(data);
+    if (text) return text;
+    throw new Error('Empty/blocked response (stop_reason: ' + (data.stop_reason || 'unknown') + '). Raw: ' + JSON.stringify(data).slice(0, 300));
+  }
+
+  // Robustly pull the text out of a Messages API response.
+  // Newer models can return multiple content blocks (e.g. a thinking block
+  // before the text block), so grab ALL text blocks, not just content[0].
+  function extractText(data) {
+    if (!data || !Array.isArray(data.content)) return '';
+    return data.content
+      .filter(b => b && b.type === 'text' && typeof b.text === 'string')
+      .map(b => b.text)
+      .join('\n')
+      .trim();
   }
 
   // ============================================================
@@ -1786,7 +1797,7 @@ CLIFF 3: [cliffhanger text in Hinglish]`;
     const status = document.getElementById('genStatus_' + num);
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Generating...';
-    status.textContent = 'Sending to Claude Sonnet 4...';
+    status.textContent = 'Sending to Claude Sonnet 5...';
 
     const seriesArc = s.seriesArc || getDefaultArc(s.totalEpisodes);
     let extra = s.extraInstructions || '';
@@ -2658,7 +2669,7 @@ THUMB: third thumbnail title`;
     const status = document.getElementById('aiArcStatus');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Generating...';
-    status.textContent = 'Calling Claude Sonnet 4...';
+    status.textContent = 'Calling Claude Sonnet 5...';
     status.style.color = '#6b7280';
 
     const prompt = `You are a content strategist for Master App (by EloElo), a Hindi edutainment short-video platform for tier 2/3 India, ages 18-35. Every video is 1-3 minutes, spoken Hinglish (Roman script), made for mobile-first viewers who will scroll away in 2 seconds if the hook doesn't land.
@@ -2721,8 +2732,8 @@ Output ONLY the episode template. No preamble, no "Here's the template", no mark
       }
 
       const data = await res.json();
-      const arcText = data.content?.[0]?.text;
-      if (!arcText) throw new Error('Empty response from Claude.');
+      const arcText = extractText(data);
+      if (!arcText) throw new Error('Empty/blocked response (stop_reason: ' + (data.stop_reason || 'unknown') + '). Raw: ' + JSON.stringify(data).slice(0, 300));
 
       // Check if response was truncated (stop_reason = max_tokens)
       if (data.stop_reason === 'max_tokens') {
@@ -2748,7 +2759,7 @@ Output ONLY the episode template. No preamble, no "Here's the template", no mark
         });
         if (contRes.ok) {
           const contData = await contRes.json();
-          const contText = contData.content?.[0]?.text || '';
+          const contText = extractText(contData);
           // Merge: original + continuation
           const fullArc = arcText.trim() + '\n\n' + contText.trim();
           document.getElementById('seriesArc').value = fullArc;
