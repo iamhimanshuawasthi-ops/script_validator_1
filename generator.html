@@ -1151,7 +1151,7 @@ Do NOT add any meta-commentary before or after the script.`}`;
         'anthropic-dangerous-direct-browser-access': 'true',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-5',
         max_tokens: 2048,
         temperature: 0.8,
         messages: [
@@ -2709,7 +2709,7 @@ Output ONLY the episode template. No preamble, no "Here's the template", no mark
           'anthropic-dangerous-direct-browser-access': 'true',
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-sonnet-5',
           max_tokens: 4096,
           messages: [{ role: 'user', content: prompt }],
         }),
@@ -2737,7 +2737,7 @@ Output ONLY the episode template. No preamble, no "Here's the template", no mark
             'anthropic-dangerous-direct-browser-access': 'true',
           },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-5',
             max_tokens: 4096,
             messages: [
               { role: 'user', content: prompt },
